@@ -1,15 +1,15 @@
-setClassUnion("EpivizDataMgrORNull", c("EpivizDataMgr", "NULL"))
+setClassUnion("EpivizDataMgrOrNULL", c("EpivizDataMgr", "NULL"))
 
 #' Data container for epiviz data server
 #' 
-#' @docType class
 #' @import methods
 #' @import S4Vectors
+#' @export
 EpivizData <- setRefClass("EpivizData",
   contains="VIRTUAL",
   fields=list(
     .object="ANY",
-    .mgr="EpivizDataMgrORNull",
+    .mgr="EpivizDataMgrOrNULL",
     .id="character",
     .name="character",
     .columns="ANY",
@@ -124,6 +124,10 @@ EpivizData <- setRefClass("EpivizData",
     get_measurements = function() {
       "Get description of measurements served by this object"
       stop("'get_measurements' called on virtual class object")
+    },
+    get_default_chart_type = function() {
+      "Get name of default chart type for this data type"
+      stop("'get_default_chart_type' called on virtual class object")
     },
     parse_measurement = function(ms_id=NULL) {
       "Parse a measurement description for data served by this object"

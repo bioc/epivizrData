@@ -1,7 +1,6 @@
 context("connected manager fetch")
 
 test_that("connected mgr fetch rows works", {
-  skip_on_cran()
   skip_on_os("windows")
   skip_if_not_installed("RSelenium")
   skip_if_not_installed("rjson")
@@ -75,7 +74,7 @@ test_that("connected mgr fetch rows works", {
 })
 
 test_that("connected mgr fetch values works", {
-  skip_on_cran()
+  skip("for now")
   skip_on_os("windows")
   skip_if_not_installed("RSelenium")
   skip_if_not_installed("rjson")

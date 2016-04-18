@@ -5,19 +5,21 @@ test_that("get_measurements works for blocks", {
   ms_obj <- epivizrData::register(gr)
   ms_id <- ms_obj$get_id()
   ms <- ms_obj$get_measurements()
-  
-  exp_ms <- list(list(id = ms_id,
-                      name = ms_obj$.name,
-                      type = "range",
-                      datasourceId = ms_id,
-                      datasourceGroup = ms_id,
-                      defaultChartType = "Blocks Track",
-                      annotation = NULL,
-                      minValue = NA,
-                      maxValue = NA,
-                      metadata = NULL))
-    
-  expect_equal(ms, exp_ms)
+
+  exp_ms <- list(
+    list(
+      id = ms_id,
+      name = ms_obj$.name,
+      type = "range",
+      datasourceId = ms_id,
+      datasourceGroup = ms_id,
+      defaultChartType = "BlocksTrack",
+      annotation = NULL,
+      minValue = as.numeric(NA),
+      maxValue = as.numeric(NA),
+      metadata = NULL)
+  )
+  expect_equal(lapply(ms, as.list), exp_ms)
 })
 
 test_that("get_measurements works for bp", {
@@ -30,20 +32,21 @@ test_that("get_measurements works for bp", {
   rngs <- sapply(1:2, function(i) range(pretty(range(mcols(gr)[,paste0("score",i)], na.rm=TRUE))))
     
   exp_ms <- lapply(1:2, function(i) {
-      list(id=paste0("score",i),
-           name=paste0("score",i),
-           type="feature",
-           datasourceId=ms_id,
-           datasourceGroup=ms_id,
-           defaultChartType="Line Track",
-           annotation=NULL,
-           minValue=rngs[1,i],
-           maxValue=rngs[2,i],
-           metadata=NULL)
+      list(
+        id=paste0("score",i),
+        name=paste0("score",i),
+        type="feature",
+        datasourceId=ms_id,
+        datasourceGroup=ms_id,
+        defaultChartType="LineTrack",
+        annotation=NULL,
+        minValue=rngs[1,i],
+        maxValue=rngs[2,i],
+        metadata=NULL)
   })
 
   obs_ms <- ms_obj$get_measurements()
-  expect_equal(obs_ms, exp_ms)
+  expect_equal(lapply(obs_ms, as.list), exp_ms)
 })
 
 test_that("get_measurements works for RangedSummarizedExperiment", {
@@ -55,20 +58,21 @@ test_that("get_measurements works for RangedSummarizedExperiment", {
     
   exp_ms <- lapply(c("A","B"), function(col) {
       i <- match(col,c("A","B"))
-      list(id=col,
-           name=col,
-           type="feature",
-           datasourceId=ms_id,
-           datasourceGroup=ms_id,
-           defaultChartType="Scatter Plot",
-           annotation=list(Treatment=as.character(colData(sset)[i,])),
-           minValue=rngs[1,i],
-           maxValue=rngs[2,i],
-           metadata=c("probeid"))
+      list(
+        id=col,
+        name=col,
+        type="feature",
+        datasourceId=ms_id,
+        datasourceGroup=ms_id,
+        defaultChartType="ScatterPlot",
+        annotation=list(Treatment=as.character(colData(sset)[i,])),
+        minValue=rngs[1,i],
+        maxValue=rngs[2,i],
+        metadata=c("probeid"))
     })
 
   obs_ms <- ms_obj$get_measurements()
-  expect_equal(obs_ms, exp_ms)
+  expect_equal(lapply(obs_ms, as.list), exp_ms)
 })
 
 test_that("get_measurements works for ExpressionSet", {
@@ -86,7 +90,7 @@ test_that("get_measurements works for ExpressionSet", {
       type="feature",
       datasourceId=ms_id,
       datasourceGroup=ms_id,
-      defaultChartType="Scatter Plot",
+      defaultChartType="ScatterPlot",
       annotation=list(a=as.character(pData(eset)[i,1]), 
                       b=as.character(pData(eset)[i,2])),
       minValue=rngs[1,i],
@@ -95,7 +99,7 @@ test_that("get_measurements works for ExpressionSet", {
   })
 
   obs_ms <- ms_obj$get_measurements()
-  expect_equal(obs_ms, exp_ms)
+  expect_equal(lapply(obs_ms, as.list), exp_ms)
 })
 
 test_that("get_measurements works for gene info gr", {
@@ -103,15 +107,17 @@ test_that("get_measurements works for gene info gr", {
   gr <- make_test_gene_info()
   ms_obj <- epivizrData::register(gr, type="gene_info")
   ms_id <- ms_obj$get_id()
-  exp_ms <- list(id=ms_id,
+  exp_ms <- list(list(id=ms_id,
                  name=ms_obj$.name,
                  type = "range",
                  datasourceId = ms_id,
                  datasourceGroup = ms_id,
-                 defaultChartType = "Genes Track",
+                 defaultChartType = "GenesTrack",
                  annotation = NULL,
-                 minValue = NA,
-                 maxValue = NA,
-                 metadata = c("gene", "exon_starts", "exon_ends"))
+                 minValue = as.numeric(NA),
+                 maxValue = as.numeric(NA),
+                 metadata = c("gene", "exon_starts", "exon_ends")))
+  obs_ms <- ms_obj$get_measurements()
+  expect_equal(lapply(obs_ms, as.list), exp_ms)
 })
 

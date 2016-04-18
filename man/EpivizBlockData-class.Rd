@@ -12,6 +12,8 @@ Used to serve data for visualizations of genomic regions only. Wraps
 \section{Methods}{
 
 \describe{
+\item{\code{get_default_chart_type()}}{Get name of default chart type for this data type}
+
 \item{\code{get_measurements()}}{Get description of measurements served by this object}
 }}
 \seealso{

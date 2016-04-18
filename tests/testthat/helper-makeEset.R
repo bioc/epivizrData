@@ -20,7 +20,7 @@ make_test_SE <- function() {
 	counts1 <- matrix(runif(nranges*nsamples, 1, 1e4), nranges)
 	counts2 <- matrix(runif(nranges*nsamples, 1, 1e2), nranges)
 
-	rowRanges<- sort(GRanges(rep(c("chr1","chr2"), c(50,150)),
+	rowRanges<- sort(GenomicRanges::GRanges(rep(c("chr1","chr2"), c(50,150)),
 		IRanges::IRanges(floor(runif(200,1e5,1e6)), width = 100),
 		strand = sample(c("+","-"), 200, TRUE),
     probeid = paste0("sid_", 1:200)))

@@ -89,30 +89,31 @@ EpivizFeatureData <- setRefClass("EpivizFeatureData",
 S4Vectors::setValidity2("EpivizFeatureData", .valid.EpivizFeatureData)
 
 EpivizFeatureData$methods(
-    get_measurements=function() {
-      out <- lapply(.self$.columns, function(cur_col) {
-        m <- match(cur_col, .self$.columns)
-
-        anno <- NULL
-        if (ncol(colData(.self$.object)) > 0) {
-          anno <- as.list(colData(.self$.object)[cur_col,,drop=FALSE])
-          anno <- lapply(anno, as.character)          
-        }
-
-        list(id=cur_col,
-           name=cur_col,
-           type="feature",
-           datasourceId=.self$.id,
-           datasourceGroup=.self$.id,
-           defaultChartType="Scatter Plot",
-           annotation=anno,
-           minValue=.self$.ylim[1,m],
-           maxValue=.self$.ylim[2,m],
-           metadata=.self$.metadata)
-      })
-      out
-    },
-#     parseMeasurement=function(msId) {
+  get_default_chart_type = function() { "ScatterPlot" },
+  get_measurements=function() {
+    out <- lapply(.self$.columns, function(cur_col) {
+      m <- match(cur_col, .self$.columns)
+      
+      anno <- NULL
+      if (ncol(colData(.self$.object)) > 0) {
+        anno <- as.list(colData(.self$.object)[cur_col,,drop=FALSE])
+        anno <- lapply(anno, as.character)          
+      }
+      
+      EpivizMeasurement(id=cur_col,
+                        name=cur_col,
+                        type="feature",
+                        datasourceId=.self$.id,
+                        datasourceGroup=.self$.id,
+                        defaultChartType=.self$get_default_chart_type(),
+                        annotation=anno,
+                        minValue=.self$.ylim[1,m],
+                        maxValue=.self$.ylim[2,m],
+                        metadata=.self$.metadata)
+    })
+    out
+  },
+  #     parseMeasurement=function(msId) {
 #       column <- strsplit(msId, split="__")[[1]][2]
 #       if(!.checkColumns(column)) {
 #         stop("invalid parsed measurement")

@@ -11,6 +11,8 @@ Data container for epiviz data server
 \section{Methods}{
 
 \describe{
+\item{\code{get_default_chart_type()}}{Get name of default chart type for this data type}
+
 \item{\code{get_id()}}{Get id provided by manager \code{\link{EpivizDataMgr-class}}}
 
 \item{\code{get_measurements()}}{Get description of measurements served by this object}

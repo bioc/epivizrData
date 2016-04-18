@@ -28,18 +28,19 @@ EpivizBlockData <- setRefClass("EpivizBlockData",
 S4Vectors::setValidity2("EpivizBlockData", .valid.EpivizBlockData)
 
 EpivizBlockData$methods(
+  get_default_chart_type = function() { "BlocksTrack" },
   get_measurements = function() {
-    out <- list(list(id = .self$.id,
-                name = .self$.name,
-                type = "range",
-                datasourceId = .self$.id,
-                datasourceGroup = .self$.id,
-                defaultChartType="Blocks Track",
-                annotation=NULL,
-                minValue=NA,
-                maxValue=NA,
-                metadata=NULL))
-      out
+    out <- list(
+      EpivizMeasurement(
+        id = .self$.id,
+        name = .self$.name,
+        type = "range",
+        datasourceId = .self$.id,
+        datasourceGroup = .self$.id,
+        defaultChartType=.self$get_default_chart_type()
+      )
+    )
+    out
   },
 #  parseMeasurement=function(msId) {
 #     if (msId != id)

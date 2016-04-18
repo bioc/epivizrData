@@ -14,6 +14,7 @@
   var ws = new WebSocket("ws://" + window.location.host);
   var _measurements = {};
   var _callbacks = [];
+  var _seqinfos = {};
   
   function _send_request(request_data, callback) {
     var requestId = _callbacks.push(callback);
@@ -165,6 +166,57 @@
     return response_data;
   }
   
+  function _updateSeqinfoDiv(div_id) {
+    var out = new Array();
+    
+    for (seqname in _seqinfos) {
+      if (!_seqinfos.hasOwnProperty(seqname)) {
+        continue;
+      }
+      out.push(seqname + ":" + _seqinfos[seqname].toString());
+    }
+    document.getElementById(div_id).innerHTML = out.toString();
+  }
+  
+  function _addSeqinfos(request_data, div_id) {
+    var seqinfos = JSON.parse(request_data.seqInfos);
+    for (seqname in seqinfos) {
+      if (!seqinfos.hasOwnProperty(seqname)) {
+        continue;
+      }
+      _seqinfos[seqname] = seqinfos[seqname];
+    }
+    
+    _updateSeqinfoDiv(div_id);
+    
+    response_data = {
+      message: "This is a response from addSeqInfos",
+    }
+    return response_data;
+  }
+  
+  function _rmSeqNames(request_data, div_id) {
+    var seqnames = JSON.parse(request_data.seqNames);
+    for (var i=0; i<seqnames.length; ++i) {
+      var name = seqnames[i];
+      delete _seqinfos[name];
+    }
+    
+    _updateSeqinfoDiv(div_id);
+    
+    response_data = {
+      message: "This is a response from rmSeqNames",
+    }
+    return response_data;
+  }
+
+  function _getSeqinfos() {
+    var request_data = {action: "getSeqInfos"};
+    _send_request(request_data, function(response_data) {
+      _addSeqinfos(response_data, "get_seqinfo_output");
+    });
+  }
+  
   ws.onmessage = function(msg) {
     var message = JSON.parse(msg.data);
     console.dir(message);
@@ -173,7 +225,7 @@
     var message_data = message.data;
     
     if (type == "response") {
-      var success = message.success;
+      var success = message_data.success;
       if (success) {
         _handle_response(requestId, message_data)
       }
@@ -192,12 +244,18 @@
         case "clearDatasourceGroupCache":
           response_data = _clearCache(message_data);
           break;
+        case "addSeqInfos":
+          response_data = _addSeqinfos(message_data, "add_seqinfo_output");
+          break;
+        case "removeSeqNames":
+          response_data = _rmSeqNames(message_data, "add_seqinfo_output");
+          break;
       }
       
+      response_data.success = true;
       response = {
         type: "response", 
         requestId: requestId, 
-        success: true, 
         data: response_data
       };
       ws.send(JSON.stringify(response));
@@ -234,7 +292,13 @@
     <input type="submit" value="Submit" id="_values_input_btn"/>
   </form>
   <div id="get_values_output"></div>
+
+  <h3>Seqinfo</h3>  
+  <div id="add_seqinfo_output"></div>
   
+  <h3>Get Seqinfo</h3>
+  <button onclick="_getSeqinfos()" id="get_seqinfo_btn">Get Seqinfo</button>
+  <div id="get_seqinfo_output"></div>
 </body>
 </html>
 

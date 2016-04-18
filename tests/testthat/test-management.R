@@ -19,7 +19,7 @@ test_that("add measurement works without connection", {
          type="feature",
          datasourceId=ms_id,
          datasourceGroup=ms_id,
-         defaultChartType="Scatter Plot",
+         defaultChartType="ScatterPlot",
          annotation=list(Treatment=as.character(colData(se)[i,])),
          minValue=rngs[1,i],
          maxValue=rngs[2,i],
@@ -27,7 +27,7 @@ test_that("add measurement works without connection", {
   })
   
   ms_record <- mgr$.ms_list[[ms_id]]
-  expect_equal(ms_record$measurements, exp_ms)
+  expect_equal(lapply(ms_record$measurements, as.list), exp_ms)
   expect_equal(ms_record$name, "example")
   expect_identical(ms_record$obj, ms_obj)
   expect_false(ms_record$connected)
@@ -60,7 +60,7 @@ test_that("get_measurements works without connection", {
       type=c(rep("range", 2), rep("feature",3)),
       datasourceId=c(msId1, msId2, msId3, rep(msId4,2)),
       datasourceGroup=c(msId1, msId2, msId3, rep(msId4,2)),
-      defaultChartType=c(rep("Blocks Track", 2), "Line Track", rep("Scatter Plot",2)),
+      defaultChartType=c(rep("BlocksTrack", 2), "LineTrack", rep("ScatterPlot",2)),
       annotation=c(rep(list(NULL),3), 
                    lapply(1:2, function(i) 
                      list(a=as.character(pData(eset)[i,1]), 
@@ -115,7 +115,7 @@ test_that("rm_allMeasurements works without connection", {
   ms3 <- mgr$add_measurements(gr3, "dev3", send_request=FALSE, type="bp"); msId3 <- ms3$get_id()
 
   expect_equal(mgr$num_datasources(), 3)
-  mgr$rm_allMeasurements()
+  mgr$rm_all_measurements()
   expect_equal(mgr$num_datasources(), 0)
 })
 

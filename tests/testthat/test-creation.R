@@ -12,6 +12,9 @@ test_that("new creates a proper object", {
   
   expect_is(mgr$.server, "EpivizServer")
   expect_true(mgr$is_server_closed())
+  
+  expect_is(mgr$.seqinfo, "Seqinfo")
+  expect_equal(mgr$.seqinfo, GenomeInfoDb::Seqinfo())
 })
 
 test_that("server opening works as expected", {

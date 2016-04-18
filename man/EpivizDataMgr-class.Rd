@@ -17,7 +17,7 @@ Class providing data manager for epiviz app
 
 \item{\code{list_measurements()}}{make a printable list of registered measurements}
 
-\item{\code{rm_allMeasurements()}}{remove all registered measurements}
+\item{\code{rm_all_measurements()}}{remove all registered measurements}
 
 \item{\code{rm_measurements(ms_obj_or_id)}}{remove registered measurments from a given data object}
 

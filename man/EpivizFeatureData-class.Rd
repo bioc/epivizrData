@@ -13,6 +13,8 @@ Used to serve general data (used in e.g., scatter plots and heatmaps). Wraps
 \section{Methods}{
 
 \describe{
+\item{\code{get_default_chart_type()}}{Get name of default chart type for this data type}
+
 \item{\code{get_measurements()}}{Get description of measurements served by this object}
 }}
 \seealso{

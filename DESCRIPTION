@@ -1,7 +1,7 @@
 Package: epivizrData
 Type: Package
 Title: Data Management API for epiviz interactive visualization app
-Version: 0.99.0
+Version: 0.99.1
 Authors@R: c( person("Hector", "Corrada Bravo", email =
         "hcorrada@gmail.com", role = c("aut", "cre")), person("Florin",
         "Chelaru", email = "florin.chelaru@gmail.com", role =
@@ -19,7 +19,7 @@ Suggests: testthat, roxygen2, bumphunter, hgu133plus2.db, Mus.musculus,
 License: MIT + file LICENSE
 LazyData: true
 RoxygenNote: 5.0.1
-Collate: 'epivizrData-package.R' 'EpivizDataMgr-class.R' 'createMgr.R'
+Collate: 'epivizrData-package.R' 'EpivizMeasurement-class.R' 'EpivizDataMgr-class.R' 'createMgr.R'
         'EpivizData-class.R' 'EpivizTrackData-class.R'
         'EpivizBlockData-class.R' 'EpivizBpData-class.R'
         'EpivizGeneInfoData-class.R' 'EpivizFeatureData-class.R'

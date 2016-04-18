@@ -1,7 +1,6 @@
 context("connected update measurement")
 
 test_that("update block works with connection", {
-  skip_on_cran()
   skip_on_os("windows")
   skip_if_not_installed("RSelenium")
   
@@ -42,7 +41,6 @@ test_that("update block works with connection", {
 })
 
 test_that("update block works with connection through mgr", {
-  skip_on_cran()
   skip_on_os("windows")
   skip_if_not_installed("RSelenium")
   

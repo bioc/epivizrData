@@ -1,20 +1,18 @@
-setClassUnion("EpivizServerOrNULL", c("EpivizServer", "NULL"))
-
 #' Class providing data manager for epiviz app
 #'
-#' @docType class
 #' @import methods
 #' @importClassesFrom epivizrServer EpivizServer
-#' 
-#' 
+#' @importClassesFrom GenomeInfoDb Seqinfo
+#' @export 
 EpivizDataMgr <- setRefClass("EpivizDataMgr",
   fields = list(
     .ms_list = "environment",
     .ms_idCounter = "integer",
-    .server = "EpivizServerOrNULL"
+    .server = "EpivizServer",
+    .seqinfo = "Seqinfo"
   ),
   methods=list(
-    initialize=function(server=NULL, ...) {
+    initialize=function(server=epivizrServer::createServer(), ...) {
       .self$.server <- server
       .self$.ms_list <- new.env(parent=emptyenv())
       .self$.ms_idCounter <- 0L
@@ -85,24 +83,14 @@ EpivizDataMgr$methods(
         cat("Measurement ", datasource_name, " added to application and connected\n")
       }
       request_data <- list(action="addMeasurements",
-                           measurements=epivizrServer::json_writer(measurements))
+                           measurements=epivizrServer::json_writer(lapply(measurements, as.list)))
       .self$.server$send_request(request_data, callback)
     }
     ms_object
   },
   get_measurements = function() {
-    out <- list(id=character(),
-                name=character(),
-                type=character(),
-                datasourceId=character(),
-                datasourceGroup=character(),
-                defaultChartType=character(),
-                annotation=list(),
-                minValue=numeric(),
-                maxValue=numeric(),
-                metadata=list()
-    )
-      
+    out <- .emptyEpivizMeasurement()
+
     measurements <- list()
     ids <- ls(.self$.ms_list)
     if (length(ids)>0) {
@@ -110,28 +98,12 @@ EpivizDataMgr$methods(
         ms_record <- .self$.ms_list[[id]]
         ms <- ms_record$obj$get_measurements()
         for (cur_ms in ms) {
-          for (entry in names(out)) {
-            if (is.list(out[[entry]])) {
-              cur_val <- list(cur_ms[[entry]])
-            } else {
-              cur_val <- cur_ms[[entry]]
-            }
-            if (!is.null(cur_ms[[entry]])) {
-              out[[entry]] <- c(out[[entry]], cur_val)
-            } else {
-              out[[entry]] <- c(out[[entry]], list(NULL))
-            }
-          }
+          out <- .appendEpivizMeasurement(out, cur_ms)
         }
       }
     }
-    
-    if (length(out$id)==1) {
-      for (entry in names(out)) {
-        out[[entry]] <- list(out[[entry]])
-      }
-    }
-    out
+
+    as.list(out)
   },
   .get_ms_object=function(ms_obj_or_id) {
     ms_obj <- NULL
@@ -170,12 +142,12 @@ EpivizDataMgr$methods(
         cat("measurement object ", ms_name, " removed and disconnected\n")
       }
       request_data <- list(action="removeMeasurements",
-                           measurements=epivizrServer::json_writer(ms))
+                           measurements=epivizrServer::json_writer(lapply(ms, as.list)))
       .self$.server$send_request(request_data, callback)
     }
     invisible()
   },
-  rm_allMeasurements = function() {
+  rm_all_measurements = function() {
     "remove all registered measurements"
     ids <- ls(.self$.ms_list)
     if (length(ids)>0) {
@@ -239,5 +211,52 @@ EpivizDataMgr$methods(
     }
     ms_obj <- .self$.find_datasource(datasource)
     ms_obj$get_values(query, measurement)
+  }
+)
+
+# seqinfo methods
+EpivizDataMgr$methods(
+  add_seqinfo = function(seqinfo, keep_seqlevels=NULL, send_request=TRUE) {
+    if(!is(seqinfo, "Seqinfo")) {
+      stop("'seqinfo' must be of class 'Seqinfo'")
+    }
+    if (!is.null(keep_seqlevels)) {
+      seqinfo <- keepSeqlevels(seqinfo, keep_seqlevels)
+    }
+    
+    .self$.seqinfo <- seqinfo
+
+    send_request <- !.self$is_server_closed() && isTRUE(send_request)
+    if (send_request) {
+      callback <- function(response_data) {
+        cat("Seqinfos added to application\n")
+      }
+      request_data <- list(action="addSeqInfos",
+                           seqInfos=epivizrServer::json_writer(seqlengths(.self$.seqinfo)))
+      .self$.server$send_request(request_data, callback)
+    }
+    invisible()
+  },
+  rm_seqinfo = function(send_request=TRUE) {
+    if (length(.self$.seqinfo) == 0) {
+      return(invisible())
+    }
+    
+    seqnames <- seqnames(.self$.seqinfo)
+    .self$.seqinfo <- Seqinfo()
+    
+    send_request <- !.self$is_server_closed() && isTRUE(send_request)
+    if (send_request) {
+      callback <- function(response_data) {
+        cat("Seqinfos deleted from app\n")
+      }
+      request_data <- list(action="removeSeqNames",
+                           seqNames=epivizrServer::json_writer(seqnames))
+      .self$.server$send_request(request_data, callback)
+    }
+    invisible()
+  },
+  get_seqinfo = function() {
+    seqlengths(.self$.seqinfo)
   }
 )

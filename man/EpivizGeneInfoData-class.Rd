@@ -12,6 +12,8 @@ Annotation obtained from columns \code{Gene} (gene symbols) and \code{Exons} (ex
 \section{Methods}{
 
 \describe{
+\item{\code{get_default_chart_type()}}{Get name of default chart type for this data type}
+
 \item{\code{get_measurements()}}{Get description of measurements served by this object}
 
 \item{\code{get_rows(query, metadata, useOffset = FALSE)}}{Get genomic interval information overlapping query <\code{\link{GenomicRanges}}> region}
