@@ -1,3 +1,5 @@
+library(SummarizedExperiment)
+
 make_test_eset <- function() {
   require(hgu133plus2.db)
   set.seed(1)

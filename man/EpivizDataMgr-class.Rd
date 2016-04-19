@@ -11,7 +11,8 @@ Class providing data manager for epiviz app
 \section{Methods}{
 
 \describe{
-\item{\code{add_measurements(obj, datasource_name, send_request = TRUE, ...)}}{register measurements in data manager}
+\item{\code{add_measurements(obj, datasource_name, send_request = TRUE, callback = NULL,
+  ...)}}{register measurements in data manager}
 
 \item{\code{is_server_closed()}}{Check if underlying server is closed, <logical>}
 

@@ -33,12 +33,16 @@ test_that("add measurement works with connection", {
   wait_until(!mgr$.server$has_request_waiting())
   ms_record <- mgr$.ms_list[[ms_id]]
   expect_true(ms_record$connected)
+
+  expect_true(mgr$is_ms_connected(ms_obj))
+  expect_true(mgr$is_ms_connected(ms_id))
   
   outputEl <- remDr$findElement(using="id", "add_measurements_output")
   ms_list <- outputEl$getElementText()[[1]]
   exp_list <- paste0(sprintf("%s:%s", ms_id, c("A","B")), collapse=",")
   expect_equal(ms_list, exp_list)
 })
+
 
 test_that("get_measurements works with connection", {
   skip_on_os("windows")

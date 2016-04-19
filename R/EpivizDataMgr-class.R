@@ -56,6 +56,12 @@ EpivizDataMgr$methods(
       .self$.server$send_request(request_data, callback)
     }
   },
+  is_ms_connected = function(ms_obj_or_id) {
+    "check if measurement object was properly added to JS app"
+    ms_object <- .self$.get_ms_object(ms_obj_or_id)
+    ms_id <- ms_object$get_id()
+    isTRUE(.self$.ms_list[[ms_id]]$connected)
+  },
   add_measurements = function(obj, datasource_name, send_request = TRUE, ...) {
     "register measurements in data manager"
     if (missing(datasource_name) || !is.character(datasource_name)) {
@@ -78,13 +84,13 @@ EpivizDataMgr$methods(
     
     send_request <- !.self$is_server_closed() && isTRUE(send_request)
     if (send_request) {
-      callback <- function(response_data) {
+      .callback <- function(response_data) {
         .self$.ms_list[[ms_id]]$connected <- TRUE
         cat("Measurement ", datasource_name, " added to application and connected\n")
       }
       request_data <- list(action="addMeasurements",
                            measurements=epivizrServer::json_writer(lapply(measurements, as.list)))
-      .self$.server$send_request(request_data, callback)
+      .self$.server$send_request(request_data, .callback)
     }
     ms_object
   },
