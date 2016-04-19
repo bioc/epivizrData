@@ -1,6 +1,6 @@
 #' Class providing data manager for epiviz app
 #'
-#' @import methods
+#' @import methods IRanges
 #' @importClassesFrom epivizrServer EpivizServer
 #' @importClassesFrom GenomeInfoDb Seqinfo
 #' @export 
