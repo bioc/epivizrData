@@ -238,7 +238,7 @@ EpivizDataMgr$methods(
         cat("Seqinfos added to application\n")
       }
       request_data <- list(action="addSeqInfos",
-                           seqInfos=epivizrServer::json_writer(seqlengths(.self$.seqinfo)))
+                           seqInfos=epivizrServer::json_writer(.self$get_seqinfo()))
       .self$.server$send_request(request_data, callback)
     }
     invisible()
@@ -263,6 +263,9 @@ EpivizDataMgr$methods(
     invisible()
   },
   get_seqinfo = function() {
-    seqlengths(.self$.seqinfo)
+    seqlengths <- seqlengths(.self$.seqinfo)+1
+    seqinfo_list <- mapply(function(seqname, seqlength) list(seqname, 1, seqlength), names(seqlengths), seqlengths,
+                           SIMPLIFY=FALSE, USE.NAMES=FALSE)
+    seqinfo_list
   }
 )

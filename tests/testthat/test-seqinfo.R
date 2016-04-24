@@ -44,7 +44,8 @@ test_that("get_seqinfo works", {
   res <- mgr$get_seqinfo()
   
   seqinfo <- keepSeqlevels(seqinfo, seqlevels)
-  expected_res <- seqlengths(seqinfo)
+  seqlengths <- seqlengths(seqinfo)
+  expected_res <- mapply(function(nm,ln) list(nm,1,ln+1), names(seqlengths), seqlengths, SIMPLIFY=FALSE, USE.NAMES=FALSE)
   expect_equal(res, expected_res)
 })
 

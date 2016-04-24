@@ -88,7 +88,7 @@ test_that("get_measurements works with connection", {
   }
   
   mgr$.server$register_action("getMeasurements", function(request_data) {
-    list(measurements=epivizrServer::json_writer(mgr$get_measurements()))
+    mgr$get_measurements()
   })
   
   buttonEl <- remDr$findElement(using="id", "get_measurements_btn")

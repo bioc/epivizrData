@@ -40,8 +40,8 @@ test_that("add_seqinfo works", {
   outputEl <- remDr$findElement(using="id", "add_seqinfo_output")
   res <- outputEl$getElementText()[[1]]
   
-  seqlengths <- seqlengths(mgr$.seqinfo)
-  expected_res <- paste(names(seqlengths), seqlengths, sep=":", collapse=",")
+  seqlengths <- seqlengths(mgr$.seqinfo)+1
+  expected_res <- paste0(names(seqlengths), ":1-", seqlengths, collapse=",")
   expect_equal(res, expected_res)
 })
 
@@ -125,7 +125,7 @@ test_that("get_seqinfo works", {
   wait_until(!mgr$.server$has_request_waiting())
   
   server$register_action("getSeqInfos", function(request_data) {
-    list(seqInfos=epivizrServer::json_writer(mgr$get_seqinfo()))
+    mgr$get_seqinfo()
   })
   
   buttonEl <- remDr$findElement(using="id", "get_seqinfo_btn")
@@ -135,8 +135,8 @@ test_that("get_seqinfo works", {
   outputEl <- remDr$findElement(using="id", "get_seqinfo_output")
   res <- outputEl$getElementText()[[1]]
   
-  seqlengths <- seqlengths(mgr$.seqinfo)
-  expected_res <- paste(names(seqlengths), seqlengths, sep=":", collapse=",")
+  seqlengths <- seqlengths(mgr$.seqinfo)+1
+  expected_res <- paste0(names(seqlengths), ":1-", seqlengths, collapse=",")
   expect_equal(res, expected_res)
 })
 
