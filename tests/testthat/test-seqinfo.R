@@ -45,7 +45,9 @@ test_that("get_seqinfo works", {
   
   seqinfo <- keepSeqlevels(seqinfo, seqlevels)
   seqlengths <- seqlengths(seqinfo)
-  expected_res <- mapply(function(nm,ln) list(nm,1,ln+1), names(seqlengths), seqlengths, SIMPLIFY=FALSE, USE.NAMES=FALSE)
+  
+  expected_res <- lapply(seqlengths+1, function(l) c(1,l))
+  names(expected_res) <- names(seqlengths)
   expect_equal(res, expected_res)
 })
 

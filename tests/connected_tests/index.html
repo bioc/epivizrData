@@ -177,7 +177,7 @@
         continue;
       }
       seq = _seqinfos[seqname];
-      out.push(seqname + ":" + seq[1].toString() + "-" + seq[2].toString());
+      out.push(seqname + ":" + seq[0].toString() + "-" + seq[1].toString());
     }
     document.getElementById(div_id).innerHTML = out.toString();
   }
@@ -186,7 +186,7 @@
     for (var i=0; i < seqinfos.length; ++i) {
       seq = seqinfos[i];
       seqname = seq[0];
-      _seqinfos[seqname] = seq;
+      _seqinfos[seqname] = seq.splice(1,2);    
     }
   }
   function _addSeqinfos(request_data, div_id) {
@@ -219,7 +219,15 @@
   function _getSeqinfos() {
     var request_data = {action: "getSeqInfos"};
     _send_request(request_data, function(response_data) {
-      _pushSeqinfos(response_data);
+      seqinfos = new Array();
+      for (seqname in response_data) {
+        if (seqname == "success" || !response_data.hasOwnProperty(seqname)) {
+          continue;
+        }
+        seq = response_data[seqname];
+        _seqinfos[seqname] = seq;
+      }
+
       _updateSeqinfoDiv("get_seqinfo_output");
     });
   }
