@@ -1,7 +1,6 @@
 context("measurement registering")
 
 test_that("register measurement works for block", {
-  skip("gc error")
   gr <- GRanges(seqnames="chr1", ranges=IRanges::IRanges(start=1:10, width=100))
   ms_obj <- epivizrData:::register(gr)
   expect_true(validObject(ms_obj))
@@ -17,7 +16,6 @@ test_that("register measurement works for block", {
 })
 
 test_that("register works for bp data", {
-  skip("gc error")
   gr <- GRanges(seqnames="chr1", ranges=IRanges::IRanges(start=1:10, width=1),score=rnorm(10))
   ms_obj <- epivizrData::register(gr, columns="score", type="bp")
   expect_true(validObject(ms_obj))
@@ -35,7 +33,6 @@ test_that("register works for bp data", {
 })
 
 test_that("register works for gene info granges", {
-  skip("gc error")
   skip_if_not_installed("bumphunter")
   gr <- make_test_gene_info()
   ms_obj <- epivizrData::register(gr, type="gene_info")
@@ -47,7 +44,6 @@ test_that("register works for gene info granges", {
 })
 
 test_that("register works for RangedSummarizedExperiment", {
-  skip("gc error")
   sset <- make_test_SE()
   ms_obj <- epivizrData::register(sset, columns=c("A","B"), assay="counts2")
   expect_true(validObject(ms_obj))
@@ -83,7 +79,6 @@ test_that("register works for RangedSummarizedExperiment", {
 })
 
 test_that("register works for ExpressionSet", {
-  skip("gc error")
   skip_if_not_installed("hgu133plus2.db")
   
   eset <- make_test_eset()
@@ -107,7 +102,6 @@ test_that("register works for ExpressionSet", {
 })
 
 test_that("register works for OrganismDb object", {
-  skip("gc error")
   skip_on_cran()
   skip_if_not_installed("Mus.musculus")
   require(Mus.musculus)
@@ -120,7 +114,6 @@ test_that("register works for OrganismDb object", {
 })
 
 test_that("register works for a TxDb object", {
-  skip("gc error")
   skip_on_cran()
   skip_if_not_installed("TxDb.Mmusculus.UCSC.mm10.knownGene")
   require(TxDb.Mmusculus.UCSC.mm10.knownGene)

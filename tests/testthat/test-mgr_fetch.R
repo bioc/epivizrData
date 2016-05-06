@@ -1,7 +1,6 @@
 context("manager fetch")
 
 test_that("disconnected mgr fetch works", {
-  skip("gc error")
   skip_if_not_installed("hgu133plus2.db")
   gr1 <- GRanges(seqnames="chr6", 
                  ranges=IRanges::IRanges(start=30000000+(1:10), width=100),

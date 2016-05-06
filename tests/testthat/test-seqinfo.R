@@ -1,7 +1,6 @@
 context("disconnected seqinfo")
 
 test_that("add_seqinfo works", {
-  skip("gc error")
   skip_if_not_installed("Mus.musculus")
   require(Mus.musculus)
   
@@ -17,7 +16,6 @@ test_that("add_seqinfo works", {
 })
 
 test_that("rm_seqinfo works",{
-  skip("gc error")
   skip_if_not_installed("Mus.musculus")
   require(Mus.musculus)
   
@@ -33,7 +31,6 @@ test_that("rm_seqinfo works",{
 })
 
 test_that("get_seqinfo works", {
-  skip("gc error")
   skip_if_not_installed("Mus.musculus")
   require(Mus.musculus)
   
