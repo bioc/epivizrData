@@ -1,7 +1,7 @@
 Package: epivizrData
 Type: Package
 Title: Data Management API for epiviz interactive visualization app
-Version: 1.1.3
+Version: 1.1.4
 Authors@R: c( person("Hector", "Corrada Bravo", email =
         "hcorrada@gmail.com", role = c("aut", "cre")), person("Florin",
         "Chelaru", email = "florin.chelaru@gmail.com", role =
@@ -15,7 +15,7 @@ Depends: R (>= 3.2.3), methods, epivizrServer (>= 1.1.1), Biobase
 Imports: S4Vectors, GenomicRanges, SummarizedExperiment (>= 0.2.0),
         OrganismDbi, GenomicFeatures, GenomeInfoDb, IRanges
 Suggests: testthat, roxygen2, bumphunter, hgu133plus2.db, Mus.musculus,
-        TxDb.Mmusculus.UCSC.mm10.knownGene, rjson, knitr, rmarkdown
+        TxDb.Mmusculus.UCSC.mm10.knownGene, rjson, knitr, rmarkdown, BiocStyle
 License: MIT + file LICENSE
 LazyData: true
 RoxygenNote: 5.0.1

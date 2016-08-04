@@ -2,22 +2,22 @@
 title: "`epivizrData` Usage"
 author: "Héctor Corrada Bravo"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-The `epivizrData` packages includes methods supporting serving data for visualization applications of data from R/Bioconductor objects. It is primarily used to serve data from interactive R/Bioconductor sessions to the epiviz JS application [http://epiviz.github.io](http://epiviz.github.io). These functions have been extracted from the `epivizr` [Bioconductor package](http://bioconductor.org/packages/release/bioc/html/epivizr.html) into its own package for easier use and maintenance.
+The `r Biocpkg("epivizrData")` packages includes methods supporting serving data for visualization applications of data from R/Bioconductor objects. It is primarily used to serve data from interactive R/Bioconductor sessions to the epiviz JS application [http://epiviz.github.io](http://epiviz.github.io). These functions have been extracted from the `r Biocpkg("epivizr")` into its own package for easier use and maintenance.
 
-It is designed to receive and send requests through WebSocket connections provided by the [`epivizrServer` package](http://github.com/epiviz/epivizrServer).
+It is designed to receive and send requests through WebSocket connections provided by the `r Biocpkg("epivizrServer")`.
 
 ### Usage
 
 The general pattern to use this package is to create an `EpivizDataMgr` object using the `createMgr` function. Once the manager is created, data objects, which provide _measurements_ to a visualization application can be added using the `add_measurements` method. 
 
-```{r}
+```{r, message=FALSE}
 library(epivizrData)
 library(GenomicRanges)
 
@@ -29,5 +29,5 @@ gr <- GRanges("chr10", IRanges(start=1:1000, width=100), score=rnorm(1000))
 data_mgr$add_measurements(gr, "example_gr", type="bp", columns="score")
 ```
 
-See `?epivizrData::register` for supported object types and options when adding data. For details on usage within the epiviz visualization app see the [`epivizr` package vignette](http://github.com/epiviz/epivizr). 
+See `?epivizrData::register` for supported object types and options when adding data. For details on usage within the epiviz visualization app see the `r Biocpkg("epivizr")` package vignette. 
 
