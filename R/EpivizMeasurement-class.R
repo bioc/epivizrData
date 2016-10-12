@@ -42,6 +42,16 @@ setMethod("as.list", signature(x="EpivizMeasurement"),
   }          
 )
 
+#' Display measurement datasourceId and id
+#' 
+#' @param object a \code{\link{EpivizMeasurement}} to display
+#' @export
+setMethod("show", signature(object="EpivizMeasurement"),
+  function(object) {
+    cat(paste0(object@datasourceId, ":", object@id))    
+  }
+)
+
 .emptyEpivizMeasurement <- function() {
   EpivizMeasurement(id=character(),
                     name=character(),
