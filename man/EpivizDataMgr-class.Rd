@@ -11,7 +11,7 @@ Class providing data manager for epiviz app
 \section{Methods}{
 
 \describe{
-\item{\code{add_measurements(obj, datasource_name, send_request = TRUE, ...)}}{register measurements in data manager}
+\item{\code{add_measurements(obj, datasource_name = NULL, send_request = TRUE, ...)}}{register measurements in data manager}
 
 \item{\code{is_ms_connected(ms_obj_or_id)}}{check if measurement object was properly added to JS app}
 

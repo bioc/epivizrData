@@ -45,6 +45,7 @@ setMethod("as.list", signature(x="EpivizMeasurement"),
 #' Display measurement datasourceId and id
 #' 
 #' @param object a \code{\link{EpivizMeasurement}} to display
+#' @return A string describing measurement
 #' @export
 setMethod("show", signature(object="EpivizMeasurement"),
   function(object) {

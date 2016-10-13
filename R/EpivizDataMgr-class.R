@@ -62,10 +62,14 @@ EpivizDataMgr$methods(
     ms_id <- ms_object$get_id()
     isTRUE(.self$.ms_list[[ms_id]]$connected)
   },
-  add_measurements = function(obj, datasource_name, send_request = TRUE, ...) {
+  add_measurements = function(obj, datasource_name=NULL, send_request = TRUE, ...) {
     "register measurements in data manager"
-    if (missing(datasource_name) || !is.character(datasource_name)) {
-      stop("data source name is required")
+    if (missing(datasource_name) || is.null(datasource_name)) {
+      datasource_name = deparse(substitute(obj))
+    }
+    
+    if (!is.character(datasource_name)) {
+      stop("data source name has to be a string: ", datasource_name)
     }
     ms_object <- epivizrData:::register(obj, ...)
 

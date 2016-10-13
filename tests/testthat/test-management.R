@@ -1,5 +1,14 @@
 context("measurement management")
 
+test_that("add measurement works without datasource_name", {
+  server <- epivizrServer::createServer()
+  mgr <- createMgr(server)
+  
+  se <- make_test_SE()
+  ms_obj <- mgr$add_measurements(se, columns=c("A", "B"), assay="counts2", send_request=FALSE)
+  expect_equal(ms_obj$get_name(), "se")
+})
+
 test_that("add measurement works without connection", {
   server <- epivizrServer::createServer()
   mgr <- createMgr(server)
