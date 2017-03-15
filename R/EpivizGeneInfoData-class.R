@@ -57,6 +57,7 @@ EpivizGeneInfoData$methods(
       type = "range",
       datasourceId = .self$.id,
       datasourceGroup = .self$.id,
+      datasourceName = .self$.source_name,
       defaultChartType = .self$get_default_chart_type(),
       metadata=c("gene", "exon_starts","exon_ends")))
     out

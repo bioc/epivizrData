@@ -21,6 +21,8 @@ Data container for epiviz data server
 
 \item{\code{get_rows(query, metadata, useOffset = FALSE)}}{Get genomic interval information overlapping query <\code{\link{GenomicRanges}}> region}
 
+\item{\code{get_source_name()}}{Get original datasource name provided by manager \code{\link{EpivizDataMgr-class}}}
+
 \item{\code{get_values(query, measurement, round = TRUE)}}{Get measurement values for features overlapping query region <\code{\link{GenomicRanges}}}
 
 \item{\code{parse_measurement(ms_id = NULL)}}{Parse a measurement description for data served by this object}
@@ -32,6 +34,8 @@ Data container for epiviz data server
 \item{\code{set_mgr(mgr)}}{Set data manager, \code{\link{EpivizDataMgr-class}}}
 
 \item{\code{set_name(name)}}{Set datasource name, usually set by manager \code{\link{EpivizDataMgr-class}}}
+
+\item{\code{set_source_name(source_name)}}{Set original datasource name, used by manager \code{\link{EpivizDataMgr-class}}}
 
 \item{\code{update(new_object, send_request = TRUE)}}{Update underlying data object with new object}
 }}

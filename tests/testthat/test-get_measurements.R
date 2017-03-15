@@ -4,6 +4,7 @@ test_that("get_measurements works for blocks", {
   gr <- GRanges(seqnames="chr1", ranges=IRanges::IRanges(start=1:10, width=1))
   ms_obj <- epivizrData::register(gr)
   ms_id <- ms_obj$get_id()
+  ms_name <- ms_obj$get_source_name()
   ms <- ms_obj$get_measurements()
 
   exp_ms <- list(
@@ -13,6 +14,7 @@ test_that("get_measurements works for blocks", {
       type = "range",
       datasourceId = ms_id,
       datasourceGroup = ms_id,
+      datasourceName = ms_name,
       defaultChartType = "BlocksTrack",
       annotation = NULL,
       minValue = as.numeric(NA),
@@ -28,7 +30,7 @@ test_that("get_measurements works for bp", {
   
   ms_obj <- epivizrData::register(gr, type="bp")
   ms_id <- ms_obj$get_id()
-
+  ms_name <- ms_obj$get_source_name() 
   rngs <- sapply(1:2, function(i) range(pretty(range(mcols(gr)[,paste0("score",i)], na.rm=TRUE))))
     
   exp_ms <- lapply(1:2, function(i) {
@@ -38,6 +40,7 @@ test_that("get_measurements works for bp", {
         type="feature",
         datasourceId=ms_id,
         datasourceGroup=ms_id,
+        datasourceName=ms_name,
         defaultChartType="LineTrack",
         annotation=NULL,
         minValue=rngs[1,i],
@@ -53,7 +56,8 @@ test_that("get_measurements works for RangedSummarizedExperiment", {
   sset <- make_test_SE()
   ms_obj <- epivizrData::register(sset, columns=c("A","B"), assay="counts2")
   ms_id <- ms_obj$get_id()
-
+  ms_name <- ms_obj$get_source_name()
+  
   rngs <- unname(sapply(c("A","B"), function(col) range(pretty(range(assay(sset,"counts2")[,col], na.rm=TRUE)))))
     
   exp_ms <- lapply(c("A","B"), function(col) {
@@ -64,6 +68,7 @@ test_that("get_measurements works for RangedSummarizedExperiment", {
         type="feature",
         datasourceId=ms_id,
         datasourceGroup=ms_id,
+        datasourceName=ms_name,
         defaultChartType="ScatterPlot",
         annotation=list(Treatment=as.character(colData(sset)[i,])),
         minValue=rngs[1,i],
@@ -81,7 +86,8 @@ test_that("get_measurements works for ExpressionSet", {
   eset <- make_test_eset()
   ms_obj <- epivizrData::register(eset, columns=c("SAMP_1","SAMP_2"))
   ms_id <- ms_obj$get_id()
-
+  ms_name <- ms_obj$get_source_name()
+  
   rngs <- sapply(1:2, function(i) range(pretty(range(exprs(eset)[,paste0("SAMP_",i)]))))
     
   exp_ms <- lapply(1:2, function(i) {
@@ -90,6 +96,7 @@ test_that("get_measurements works for ExpressionSet", {
       type="feature",
       datasourceId=ms_id,
       datasourceGroup=ms_id,
+      datasourceName=ms_name,
       defaultChartType="ScatterPlot",
       annotation=list(a=as.character(pData(eset)[i,1]), 
                       b=as.character(pData(eset)[i,2])),
@@ -107,11 +114,14 @@ test_that("get_measurements works for gene info gr", {
   gr <- make_test_gene_info()
   ms_obj <- epivizrData::register(gr, type="gene_info")
   ms_id <- ms_obj$get_id()
+  ms_name <- ms_obj$get_source_name()
+  
   exp_ms <- list(list(id=ms_id,
                  name=ms_obj$.name,
                  type = "range",
                  datasourceId = ms_id,
                  datasourceGroup = ms_id,
+                 datasourceName = ms_name,
                  defaultChartType = "GenesTrack",
                  annotation = NULL,
                  minValue = as.numeric(NA),

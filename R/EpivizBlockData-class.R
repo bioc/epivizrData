@@ -37,6 +37,7 @@ EpivizBlockData$methods(
         type = "range",
         datasourceId = .self$.id,
         datasourceGroup = .self$.id,
+        datasourceName = .self$.source_name,
         defaultChartType=.self$get_default_chart_type()
       )
     )

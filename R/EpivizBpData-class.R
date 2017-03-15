@@ -77,6 +77,7 @@ EpivizBpData$methods(
         type="feature",
         datasourceId=.self$.id,
         datasourceGroup=.self$.id,
+        datasourceName=.self$.source_name,
         defaultChartType=.self$get_default_chart_type(),
         minValue=.self$.ylim[1,m],
         maxValue=.self$.ylim[2,m])

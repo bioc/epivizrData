@@ -16,6 +16,7 @@ test_that("add measurement works without connection", {
   se <- make_test_SE()
   ms_obj <- mgr$add_measurements(se, "example", columns=c("A", "B"), assay="counts2", send_request=FALSE)
   ms_id <- ms_obj$get_id()
+  ms_name <- ms_obj$get_source_name()
   
   expect_equal(mgr$num_datasources(), 1)
   expect_false(is.null(mgr$.ms_list[[ms_id]]))
@@ -28,6 +29,7 @@ test_that("add measurement works without connection", {
          type="feature",
          datasourceId=ms_id,
          datasourceGroup=ms_id,
+         datasourceName=ms_name,
          defaultChartType="ScatterPlot",
          annotation=list(Treatment=as.character(colData(se)[i,])),
          minValue=rngs[1,i],
@@ -53,10 +55,10 @@ test_that("get_measurements works without connection", {
   server <- epivizrServer::createServer()
   mgr <- createMgr(server)
   
-  msObj1 <- mgr$add_measurements(gr1, "dev1", send_request=FALSE); msId1=msObj1$get_id()
-  msObj2 <- mgr$add_measurements(gr2, "dev2", send_request=FALSE); msId2=msObj2$get_id()
-  msObj3 <- mgr$add_measurements(gr3, "dev3", send_request=FALSE, type="bp"); msId3=msObj3$get_id()
-  msObj4 <- mgr$add_measurements(eset, "dev4", send_request=FALSE, columns=c("SAMP_1", "SAMP_2")); msId4=msObj4$get_id()
+  msObj1 <- mgr$add_measurements(gr1, "dev1", send_request=FALSE); msId1=msObj1$get_id(); msName1=msObj1$get_source_name()
+  msObj2 <- mgr$add_measurements(gr2, "dev2", send_request=FALSE); msId2=msObj2$get_id(); msName2=msObj2$get_source_name()
+  msObj3 <- mgr$add_measurements(gr3, "dev3", send_request=FALSE, type="bp"); msId3=msObj3$get_id(); msName3=msObj3$get_source_name()
+  msObj4 <- mgr$add_measurements(eset, "dev4", send_request=FALSE, columns=c("SAMP_1", "SAMP_2")); msId4=msObj4$get_id(); msName4=msObj4$get_source_name()
     
   rngs3 <- range(pretty(range(mcols(gr3)[,"score"],na.rm=TRUE)))
   rngs4 <- sapply(1:2, function(i) range(pretty(range(exprs(eset)[,paste0("SAMP_",i)],na.rm=TRUE))))
@@ -69,6 +71,7 @@ test_that("get_measurements works without connection", {
       type=c(rep("range", 2), rep("feature",3)),
       datasourceId=c(msId1, msId2, msId3, rep(msId4,2)),
       datasourceGroup=c(msId1, msId2, msId3, rep(msId4,2)),
+      datasourceName=c(msName1, msName2, msName3, rep(msName4, 2)),
       defaultChartType=c(rep("BlocksTrack", 2), "LineTrack", rep("ScatterPlot",2)),
       annotation=c(rep(list(NULL),3), 
                    lapply(1:2, function(i) 
