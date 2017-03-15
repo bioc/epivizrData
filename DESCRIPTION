@@ -10,6 +10,8 @@ Authors@R: c( person("Hector", "Corrada Bravo",
                       role = c("aut")), 
               person("Jayaram", "Kancherla", 
                       email="jayaram.kancherla@gmail.com",
+                      role = c("aut")),
+              person("Brian", "Gottfried",
                       role = c("aut")))
 URL: http://epiviz.github.io
 Description: Serve data from Bioconductor Objects through a WebSocket
