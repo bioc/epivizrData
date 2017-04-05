@@ -16,12 +16,14 @@ test_that("get_measurements works for blocks", {
       datasourceGroup = ms_id,
       datasourceName = ms_name,
       defaultChartType = "BlocksTrack",
+      dataprovider = character(),
       annotation = NULL,
       minValue = as.numeric(NA),
       maxValue = as.numeric(NA),
       metadata = NULL)
   )
-  expect_equal(lapply(ms, as.list), exp_ms)
+  obs <- lapply(ms, as.list)
+  expect_equal(obs, exp_ms)
 })
 
 test_that("get_measurements works for bp", {
@@ -42,6 +44,7 @@ test_that("get_measurements works for bp", {
         datasourceGroup=ms_id,
         datasourceName=ms_name,
         defaultChartType="LineTrack",
+        dataprovider=character(),
         annotation=NULL,
         minValue=rngs[1,i],
         maxValue=rngs[2,i],
@@ -70,6 +73,7 @@ test_that("get_measurements works for RangedSummarizedExperiment", {
         datasourceGroup=ms_id,
         datasourceName=ms_name,
         defaultChartType="ScatterPlot",
+        dataprovider=character(),
         annotation=list(Treatment=as.character(colData(sset)[i,])),
         minValue=rngs[1,i],
         maxValue=rngs[2,i],
@@ -98,6 +102,7 @@ test_that("get_measurements works for ExpressionSet", {
       datasourceGroup=ms_id,
       datasourceName=ms_name,
       defaultChartType="ScatterPlot",
+      dataprovider=character(),
       annotation=list(a=as.character(pData(eset)[i,1]), 
                       b=as.character(pData(eset)[i,2])),
       minValue=rngs[1,i],
@@ -123,6 +128,7 @@ test_that("get_measurements works for gene info gr", {
                  datasourceGroup = ms_id,
                  datasourceName = ms_name,
                  defaultChartType = "GenesTrack",
+                 dataprovider=character(),
                  annotation = NULL,
                  minValue = as.numeric(NA),
                  maxValue = as.numeric(NA),
