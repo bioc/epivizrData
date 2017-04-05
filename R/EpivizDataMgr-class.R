@@ -9,7 +9,8 @@ EpivizDataMgr <- setRefClass("EpivizDataMgr",
     .ms_list = "environment",
     .ms_idCounter = "integer",
     .server = "EpivizServer",
-    .seqinfo = "Seqinfo"
+    .seqinfo = "Seqinfo",
+    .remote_measurements = "list"
   ),
   methods=list(
     initialize=function(server=epivizrServer::createServer(), ...) {
@@ -117,6 +118,35 @@ EpivizDataMgr$methods(
     }
 
     as.list(out)
+  },
+  set_remote_measurements = function(measurements) {
+    .self$.remote_measurements <- lapply (measurements, function(m) {
+      if(is.null(m$minValue)) {m$minValue = 0}
+      if(is.null(m$maxValue)) {m$maxValue = 0}
+      EpivizMeasurement(
+        id = m$id,
+        name = m$name,
+        type = m$type,
+        datasourceId = m$datasourceId,
+        datasourceGroup = m$datasourceGroup,
+        defaultChartType = m$defaultChartType,
+        annotation = m$annotation,
+        minValue = m$minValue,
+        maxValue = m$maxValue,
+        metadata = m$metadata,
+        dataprovider = m$dataprovider
+      )
+    })
+  },
+  get_remote_measurements = function() {
+    .self$.remote_measurements
+    # out <- .emptyEpivizMeasurement()
+    # 
+    # for (cur_ms in .self$.remote_measurements) {
+    #   out <- .appendEpivizMeasurement(out, cur_ms)
+    # }
+    # 
+    # as.list(out)
   },
   .get_ms_object=function(ms_obj_or_id) {
     ms_obj <- NULL
