@@ -3,10 +3,10 @@
 \docType{methods}
 \name{register}
 \alias{register}
-\alias{register,ExpressionSet-method}
 \alias{register,GenomicRanges-method}
-\alias{register,OrganismDb-method}
 \alias{register,RangedSummarizedExperiment-method}
+\alias{register,ExpressionSet-method}
+\alias{register,OrganismDb-method}
 \alias{register,TxDb-method}
 \title{Generic method to register data to the data server}
 \usage{
@@ -64,6 +64,7 @@ Generic method to register data to the data server
 
 \item \code{TxDb}: Register a \code{\link{TxDb}} object
 }}
+
 \examples{
 library(GenomicRanges)
 # create an example GRanges object
@@ -80,4 +81,3 @@ data_mgr <- epivizrData::createMgr(server)
 data_mgr$add_measurements(gr, "example_gr", type="bp", columns="score")
 
 }
-

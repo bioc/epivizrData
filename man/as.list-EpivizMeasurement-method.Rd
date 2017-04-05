@@ -16,4 +16,3 @@ a \code{list} describing measurement object
 \description{
 Convert \code{\link{EpivizMeasurement}} object to \code{list}
 }
-

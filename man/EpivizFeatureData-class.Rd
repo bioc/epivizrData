@@ -2,8 +2,8 @@
 % Please edit documentation in R/EpivizFeatureData-class.R
 \docType{class}
 \name{EpivizFeatureData-class}
-\alias{EpivizFeatureData}
 \alias{EpivizFeatureData-class}
+\alias{EpivizFeatureData}
 \title{Data container for RangedSummarizedExperiment objects}
 \description{
 Used to serve general data (used in e.g., scatter plots and heatmaps). Wraps
@@ -17,7 +17,7 @@ Used to serve general data (used in e.g., scatter plots and heatmaps). Wraps
 
 \item{\code{get_measurements()}}{Get description of measurements served by this object}
 }}
+
 \seealso{
 EpivizData
 }
-

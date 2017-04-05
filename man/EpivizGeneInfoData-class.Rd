@@ -2,8 +2,8 @@
 % Please edit documentation in R/EpivizGeneInfoData-class.R
 \docType{class}
 \name{EpivizGeneInfoData-class}
-\alias{EpivizGeneInfoData}
 \alias{EpivizGeneInfoData-class}
+\alias{EpivizGeneInfoData}
 \title{Container for gene annotation data}
 \description{
 Used to serve data to gene annotation tracks. Wraps \code{\link{GenomicRanges}} objects.
@@ -18,9 +18,9 @@ Annotation obtained from columns \code{Gene} (gene symbols) and \code{Exons} (ex
 
 \item{\code{get_rows(query, metadata, useOffset = FALSE)}}{Get genomic interval information overlapping query <\code{\link{GenomicRanges}}> region}
 }}
+
 \seealso{
 EpivizData
 
 register,OrganismDb
 }
-

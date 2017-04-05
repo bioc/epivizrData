@@ -25,7 +25,7 @@ Suggests: testthat, roxygen2, bumphunter, hgu133plus2.db, Mus.musculus,
         TxDb.Mmusculus.UCSC.mm10.knownGene, rjson, knitr, rmarkdown, BiocStyle
 License: MIT + file LICENSE
 LazyData: true
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Collate: 'epivizrData-package.R' 'EpivizMeasurement-class.R' 'EpivizDataMgr-class.R' 'createMgr.R'
         'EpivizData-class.R' 'EpivizTrackData-class.R'
         'EpivizBlockData-class.R' 'EpivizBpData-class.R'

@@ -2,8 +2,8 @@
 % Please edit documentation in R/EpivizBlockData-class.R
 \docType{class}
 \name{EpivizBlockData-class}
-\alias{EpivizBlockData}
 \alias{EpivizBlockData-class}
+\alias{EpivizBlockData}
 \title{Data container for interval data.}
 \description{
 Used to serve data for visualizations of genomic regions only. Wraps
@@ -16,7 +16,7 @@ Used to serve data for visualizations of genomic regions only. Wraps
 
 \item{\code{get_measurements()}}{Get description of measurements served by this object}
 }}
+
 \seealso{
 EpivizData
 }
-

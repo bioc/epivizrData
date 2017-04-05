@@ -2,8 +2,8 @@
 % Please edit documentation in R/EpivizDataMgr-class.R
 \docType{class}
 \name{EpivizDataMgr-class}
-\alias{EpivizDataMgr}
 \alias{EpivizDataMgr-class}
+\alias{EpivizDataMgr}
 \title{Class providing data manager for epiviz app}
 \description{
 Class providing data manager for epiviz app

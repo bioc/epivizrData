@@ -2,10 +2,9 @@
 % Please edit documentation in R/EpivizMeasurement-class.R
 \docType{class}
 \name{EpivizMeasurement-class}
-\alias{EpivizMeasurement}
 \alias{EpivizMeasurement-class}
+\alias{EpivizMeasurement}
 \title{Class encapsulating a measurement description for epiviz app.}
 \description{
 Class encapsulating a measurement description for epiviz app.
 }
-

@@ -31,6 +31,7 @@ test_that("add measurement works without connection", {
          datasourceGroup=ms_id,
          datasourceName=ms_name,
          defaultChartType="ScatterPlot",
+         dataprovider=character(),
          annotation=list(Treatment=as.character(colData(se)[i,])),
          minValue=rngs[1,i],
          maxValue=rngs[2,i],

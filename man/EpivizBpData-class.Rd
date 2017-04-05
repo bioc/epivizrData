@@ -2,8 +2,8 @@
 % Please edit documentation in R/EpivizBpData-class.R
 \docType{class}
 \name{EpivizBpData-class}
-\alias{EpivizBpData}
 \alias{EpivizBpData-class}
+\alias{EpivizBpData}
 \title{Container for basepair level numeric data}
 \description{
 Used to serve data to genomic line tracks. Wraps \code{\link{GenomicRanges}}
@@ -16,7 +16,7 @@ objects. Numeric values obtained from \code{mcols} slot.
 
 \item{\code{get_measurements()}}{Get description of measurements served by this object}
 }}
+
 \seealso{
 EpivizData
 }
-

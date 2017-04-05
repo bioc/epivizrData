@@ -20,4 +20,3 @@ server <- epivizrServer::createServer(port=7123L)
 data_mgr <- epivizrData::createMgr(server)
 
 }
-

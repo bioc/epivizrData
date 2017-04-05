@@ -2,8 +2,8 @@
 % Please edit documentation in R/EpivizData-class.R
 \docType{class}
 \name{EpivizData-class}
-\alias{EpivizData}
 \alias{EpivizData-class}
+\alias{EpivizData}
 \title{Data container for epiviz data server}
 \description{
 Data container for epiviz data server
