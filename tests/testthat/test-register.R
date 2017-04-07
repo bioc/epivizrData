@@ -125,3 +125,15 @@ test_that("register works for a TxDb object", {
   expect_is(ms_obj$.object, "GNCList")
   expect_true(is.null(ms_obj$.columns))
 })
+
+test_that("register works for an EnsDb object", {
+  skip_on_cran()
+  skip_if_not_installed("EnsDb.Mmusculus.v79")
+  
+  require(EnsDb.Mmusculus.v79)
+  ms_obj <- epivizrData::register(EnsDb.Mmusculus.v79,
+                                  keepSeqlevels = c(as.character(1:19), "X", "Y"))
+  expect_true(validObject(ms_obj))
+  expect_is(ms_obj$.object, "GNCList")
+  expect_true(is.null(ms_obj$.columns))
+})

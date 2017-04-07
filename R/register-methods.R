@@ -231,6 +231,10 @@ setMethod("register", "OrganismDb", .register_txdb)
 #' @import GenomicFeatures
 setMethod("register", "TxDb", .register_txdb)
 
+#' @describeIn register Register an \code{\link{EnsDb}} object
+#' @import ensembldb
+setMethod("register", "EnsDb", .register_txdb)
+
 # setMethod("register", "BEDFile", function(object, ...) {
 #   gr <- import.bed(object)
 #   register(gr, type="block", ...)

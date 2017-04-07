@@ -8,6 +8,7 @@
 \alias{register,ExpressionSet-method}
 \alias{register,OrganismDb-method}
 \alias{register,TxDb-method}
+\alias{register,EnsDb-method}
 \title{Generic method to register data to the data server}
 \usage{
 register(object, columns = NULL, ...)
@@ -25,6 +26,9 @@ register(object, columns = NULL, ...)
   keepSeqlevels = NULL, ...)
 
 \S4method{register}{TxDb}(object, kind = c("gene", "tx"),
+  keepSeqlevels = NULL, ...)
+
+\S4method{register}{EnsDb}(object, kind = c("gene", "tx"),
   keepSeqlevels = NULL, ...)
 }
 \arguments{
@@ -63,6 +67,8 @@ Generic method to register data to the data server
 \item \code{OrganismDb}: Register an \code{\link{OrganismDb}} object
 
 \item \code{TxDb}: Register a \code{\link{TxDb}} object
+
+\item \code{EnsDb}: Register an \code{\link{EnsDb}} object
 }}
 
 \examples{

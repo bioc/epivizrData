@@ -20,9 +20,10 @@ BugReports: https://github.com/epiviz/epivizrData/issues
 biocViews: Infrastructure, Visualization
 Depends: R (>= 3.4), methods, epivizrServer (>= 1.1.1), Biobase
 Imports: S4Vectors, GenomicRanges, SummarizedExperiment (>= 0.2.0),
-        OrganismDbi, GenomicFeatures, GenomeInfoDb, IRanges
+        OrganismDbi, GenomicFeatures, GenomeInfoDb, IRanges, ensembldb
 Suggests: testthat, roxygen2, bumphunter, hgu133plus2.db, Mus.musculus,
-        TxDb.Mmusculus.UCSC.mm10.knownGene, rjson, knitr, rmarkdown, BiocStyle
+        TxDb.Mmusculus.UCSC.mm10.knownGene, rjson, knitr, rmarkdown, BiocStyle,
+        EnsDb.Mmusculus.v79
 License: MIT + file LICENSE
 LazyData: true
 RoxygenNote: 6.0.1

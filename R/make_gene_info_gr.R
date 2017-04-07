@@ -16,25 +16,45 @@ setGeneric(".make_gene_info_gr", signature=c("object"),
              standardGeneric(".make_gene_info_gr")
 )
 
-setMethod(".make_gene_info_gr", "OrganismDb", 
-  function(object, kind = c("gene","tx"), keepSeqlevels = NULL) {
-    kind <- match.arg(kind)
-    gr <- GenomicFeatures::genes(object, columns=c("GENEID", "SYMBOL"))
-    exons <- GenomicFeatures::exonsBy(object, by=kind)
+.make_gene_info_org_helper <- function(object, kind = c("gene","tx"), keepSeqlevels = NULL) {
+  kind <- match.arg(kind)
+  gr <- GenomicFeatures::genes(object, columns=c("GENEID", "SYMBOL"))
+  exons <- GenomicFeatures::exonsBy(object, by=kind)
   
-    ids <- as.character(gr$GENEID)
-    exons <- reduce(ranges(exons)[ids])
-    gr$Exons <- exons
+  ids <- as.character(gr$GENEID)
+  exons <- reduce(ranges(exons)[ids])
+  gr$Exons <- exons
   
-    gr <- .cleanup_gene_info_gr(gr, keepSeqlevels)
-    
-    nms <- names(mcols(gr))
-    geneNameIdx <- match("SYMBOL", nms)
-    nms[geneNameIdx] <- "Gene"
-    names(mcols(gr)) <- nms
-    gr
-  }
-)
+  gr <- .cleanup_gene_info_gr(gr, keepSeqlevels)
+  
+  nms <- names(mcols(gr))
+  geneNameIdx <- match("SYMBOL", nms)
+  nms[geneNameIdx] <- "Gene"
+  names(mcols(gr)) <- nms
+  gr
+}
+
+.make_gene_info_ensdb_helper <- function(object, kind = c("gene","tx"), keepSeqlevels = NULL) {
+  kind <- match.arg(kind)
+  gr <- ensembldb::genes(object, columns=c("gene_id", "gene_name"))
+  exons <- ensembldb::exonsBy(object, by=kind)
+  
+  names(mcols(gr)) <- c("GENEID","SYMBOL")
+  ids <- as.character(gr$GENEID)
+  exons <- reduce(ranges(exons)[ids])
+  gr$Exons <- exons
+  
+  gr <- .cleanup_gene_info_gr(gr, keepSeqlevels)
+  
+  nms <- names(mcols(gr))
+  geneNameIdx <- match("SYMBOL", nms)
+  nms[geneNameIdx] <- "Gene"
+  names(mcols(gr)) <- nms
+  gr
+}
+
+setMethod(".make_gene_info_gr", "OrganismDb", .make_gene_info_org_helper)
+setMethod(".make_gene_info_gr", "EnsDb", .make_gene_info_ensdb_helper)
 
 setMethod(".make_gene_info_gr", "TxDb", 
   function(object, kind = c("gene", "tx"), keepSeqlevels = NULL) {
