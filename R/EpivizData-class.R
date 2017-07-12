@@ -4,6 +4,7 @@ setClassUnion("EpivizDataMgrOrNULL", c("EpivizDataMgr", "NULL"))
 #'
 #' @import methods
 #' @import S4Vectors
+#' @import DBI
 #' @export
 EpivizData <- setRefClass("EpivizData",
   contains="VIRTUAL",
@@ -233,7 +234,7 @@ EpivizData$methods(
                   useOffset=FALSE,
                   values=list(
                     id=.self$.cur_hits,
-                    chr=as.vector(seqnames(.self$.object)),
+                    chr=as.vector(seqnames(.self$.object))[.self$.cur_hits],
                     start=start(.self$.object)[.self$.cur_hits],
                     end=end(.self$.object)[.self$.cur_hits],
                     metadata=.self$.get_metadata(.self$.cur_hits, metadata)
@@ -249,7 +250,7 @@ EpivizData$methods(
                     useOffset=TRUE,
                     values=list(
                       id=.self$.cur_hits,
-                      chr=as.vector(seqnames(.self$.object)),
+                      chr=as.vector(seqnames(.self$.object))[.self$.cur_hits],
                       start=c(st[1], stDiff),
                       end=c(end[1], endDiff),
                       metadata=.self$.get_metadata(.self$.cur_hits, metadata)
