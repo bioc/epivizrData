@@ -318,7 +318,7 @@ EpivizData$methods(
     ms_list <- lapply(measurements, as.list)
     ms_json <- epivizrChart::json_writer(ms_list)
 
-    return(list(measurements=ms_json, data=data_json))
+    list(measurements=ms_json, data=data_json)
   },
   .get_col_data = function(query) {
     ms_list <- .self$get_measurements()
@@ -330,9 +330,9 @@ EpivizData$methods(
       cols[[ms@id]] <- values
     }
 
-    return(cols)
+    cols
   },
-  toMySQL = function(connection, db_name, annotation=NULL, batch=50 ) {
+  toMySQL = function(connection, db_name, annotation=NULL, batch=50) {
     "Send EpivizData to a MySQL Database
     \\describe{
     \\item{connection}{DBIConnection to a database}
@@ -340,14 +340,18 @@ EpivizData$methods(
     \\item{annotation}{Annotation for index table}
     \\item{batch}{Batch size for data sent to the MySQL database at a time}
     }"
-
+    # TODO: sample chr indices and if check values have 
+    # 'chr' at the beginning and concat 'chr' if missing
+    
     df <- as.data.frame(.self, stringsAsFactors=FALSE)
 
     create_table_query <- .self$.mysql_create_table(df, db_name)
-    DBI::dbSendQuery(connection, create_table_query)
-
+    result <- DBI::dbSendStatement(connection, create_table_query)
+    DBI::dbClearResult(result)
+    
     index_query <- .self$.mysql_insert_index(db_name, annotation)
-    DBI::dbSendQuery(connection, index_query)
+    result <- DBI::dbSendStatement(connection, index_query)
+    DBI::dbClearResult(result)
 
     # wrap character columns in single quotes for SQL query
     filter <- sapply(colnames(df), function(colname) is.character(df[,colname]))
@@ -380,7 +384,8 @@ EpivizData$methods(
     )
     
     for (query in insert_queries) {
-      DBI::dbSendQuery(connection, query)
+      result <- DBI::dbSendStatement(connection, query)
+      DBI::dbClearResult(result)
     }
 
     invisible()
@@ -397,7 +402,7 @@ EpivizData$methods(
     filter <- c(-1,-2,-3)
     col_names <- colnames(df[filter])
 
-    # SQL types
+    # SQL column types
     sql_cols <- sapply(col_names, function(col_name) {
       if (is.character(df[,col_name])) {
         # the bytes we want allocated for this column in the table
@@ -412,16 +417,18 @@ EpivizData$methods(
     if (length(sql_cols) != 0) {
       cols <- paste0(sql_cols, sep=",", collapse="")
     } else {
+      # empty string will paste nothing for cols below
       cols <- ''
     }
+    
     create_table_query <- paste0(
-      "CREATE TABLE IF NOT EXISTS ", db_name, ".`", .self$get_name(), "` (
-      `id` bigint(20) NOT NULL AUTO_INCREMENT,",
-      "`chr` varchar(20) NOT NULL,",
-      "`start` bigint(20) NOT NULL,",
+      "CREATE TABLE IF NOT EXISTS ", db_name, ".`", .self$get_name(), '` ', 
+      "(`id` bigint(20) NOT NULL AUTO_INCREMENT, ",
+      "`chr` varchar(20) NOT NULL, ",
+      "`start` bigint(20) NOT NULL, ",
       "`end` bigint(20) NOT NULL, ",
       cols,
-      "PRIMARY KEY (`id`,`chr`,`start`),",
+      "PRIMARY KEY (`id`,`chr`,`start`), ",
       "KEY `location_idx` (`start`,`end`)",
       ") ENGINE=MyISAM DEFAULT CHARSET=latin1"
     )
@@ -433,8 +440,8 @@ EpivizData$methods(
         "PARTITION BY LIST COLUMNS(chr) ",
         "SUBPARTITION BY HASH (start) ",
         "SUBPARTITIONS 10 ",
-        "(", paste0("PARTITION ", chrs, " VALUES IN ('", chrs, "') ENGINE = MyISAM",
-          collapse=",")))
+        "(", paste0("PARTITION `", chrs, "` VALUES IN('", chrs, "') ENGINE = MyISAM",
+          collapse=", "), ")"))
     }
 
     create_table_query
