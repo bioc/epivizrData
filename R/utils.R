@@ -1,4 +1,7 @@
 #' Generic as.data.frame method for EpivizData objects
+#' @param x \code{\link{EpivizData}} object to coerce.
+#' @param query GRanges object
+#' @param ... other param to send to data.frame
 #' @export
 setMethod ("as.data.frame", signature("EpivizData"),
   function (x, query=NULL, ...) {

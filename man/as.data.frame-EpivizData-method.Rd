@@ -7,6 +7,13 @@
 \usage{
 \S4method{as.data.frame}{EpivizData}(x, query = NULL, ...)
 }
+\arguments{
+\item{x}{\code{\link{EpivizData}} object to coerce.}
+
+\item{query}{GRanges object}
+
+\item{...}{other param to send to data.frame}
+}
 \description{
 Generic as.data.frame method for EpivizData objects
 }
