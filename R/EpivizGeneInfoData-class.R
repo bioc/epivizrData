@@ -1,12 +1,12 @@
 #' Container for gene annotation data
-#' 
+#'
 #' Used to serve data to gene annotation tracks. Wraps \code{\link{GenomicRanges}} objects.
 #' Annotation obtained from columns \code{Gene} (gene symbols) and \code{Exons} (exon start and end locations).
-#' 
+#'
 #' @docType class
 #' @seealso EpivizData
 #' @seealso register,OrganismDb
-#' 
+#'
 EpivizGeneInfoData <- setRefClass("EpivizGeneInfoData",
   contains="EpivizTrackData",
   methods=list(
@@ -34,7 +34,7 @@ EpivizGeneInfoData <- setRefClass("EpivizGeneInfoData",
     return("'Gene' must be a 'character' vector or Rle, or 'CharacterList'")
   if (!is(mdata$Gene, "Rle") && !(is.character(mdata$Gene) || is(mdata$Gene, "CharacterList")))
     return("'Gene' must be a 'character' vector or Rle, or 'CharacterList'")
-  
+
   if (!is(mdata$Exons, "IRangesList"))
     return("'Exons' must be an 'IRangesList'")
 
@@ -87,5 +87,14 @@ EpivizGeneInfoData$methods(
       out[[col]] <- cur_out
     }
     out
+  },
+  get_default_chart_type_html = function() {
+    stop("Genes Track is currently not supported for polymer.")
+  },
+  .get_col_data = function(chr, start, end) {
+    return(NULL)
+  },
+  export = function(host, unix.socket, user, pass, db_name) {
+   # TODO
   }
 )

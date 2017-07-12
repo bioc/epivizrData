@@ -1,8 +1,8 @@
 #' Data container for interval data.
-#' 
+#'
 #' Used to serve data for visualizations of genomic regions only. Wraps
 #' \code{\link{GenomicRanges}} objects.
-#' 
+#'
 #' @docType class
 #' @seealso EpivizData
 EpivizBlockData <- setRefClass("EpivizBlockData",
@@ -53,6 +53,15 @@ EpivizBlockData$methods(
   },
   .get_values_from_hits = function(cur_hits, measurement) {
     return(NULL)
+  },
+  get_default_chart_type_html = function() {
+    "epiviz-json-blocks-track"
+  },
+  .get_col_data = function(chr, start, end) {
+    return(NULL)
+  },
+  export = function(host, unix.socket, user, pass, db_name) {
+    # TODO
   }
 )
 

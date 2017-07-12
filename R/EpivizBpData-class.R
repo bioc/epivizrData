@@ -96,6 +96,9 @@ EpivizBpData$methods(
       vals <- round(vals, 3)
     }
     vals
+  },
+  get_default_chart_type_html = function() {
+    "epiviz-json-line-track"
   }#,
 )
 #   parseMeasurement=function(msId) {

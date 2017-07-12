@@ -1,7 +1,7 @@
 setClassUnion("EpivizDataMgrOrNULL", c("EpivizDataMgr", "NULL"))
 
 #' Data container for epiviz data server
-#' 
+#'
 #' @import methods
 #' @import S4Vectors
 #' @export
@@ -19,8 +19,8 @@ EpivizData <- setRefClass("EpivizData",
     .cur_hits="ANY"
   ),
   methods=list(
-    initialize = function(object = GNCList(GRanges()), 
-                          columns=NULL, 
+    initialize = function(object = GNCList(GRanges()),
+                          columns=NULL,
                           ylim=NULL, ...) {
       .self$.object <- object
       .self$.columns <- columns
@@ -35,7 +35,7 @@ EpivizData <- setRefClass("EpivizData",
       if (length(naIndex)>0) {
         .self$.object <- .self$.object[-naIndex,]
       }
-      
+
       if (!is.null(ylim)) {
         if (!.self$.check_limits(ylim))
           stop("invalid 'ylim' argument")
@@ -75,7 +75,7 @@ EpivizData <- setRefClass("EpivizData",
 
       original_object <- .self$.object
       .self$.object <- new_object
-      
+
       if (!is.null(.self$.columns)) {
         if (!.self$.check_columns(.self$.columns)) {
           .self$.object <- original_object
@@ -86,12 +86,12 @@ EpivizData <- setRefClass("EpivizData",
 
       .self$.object <- reorderIfNeeded(.self$.object)
       .self$.object <- coerceIfNeeded(.self$.object)
-      
+
       na_index <- .self$.infer_nas()
       if (length(na_index) > 0) {
         .self$.object <- .self$.object[-na_index,]
       }
-      
+
       if (send_request && !is.null(.self$.mgr))
         .self$.mgr$.clear_datasourceGroup_cache(.self)
       invisible()
@@ -106,18 +106,18 @@ EpivizData <- setRefClass("EpivizData",
       .self$.id <- id
       invisible()
     },
-    
+
     # TODO: use accessor functions for this
-    get_name = function() { 
+    get_name = function() {
       "Get datasource name, usually set by manager \\code{\\link{EpivizDataMgr-class}}"
-      .self$.name 
+      .self$.name
     },
     set_name=function(name) {
       "Set datasource name, usually set by manager \\code{\\link{EpivizDataMgr-class}}"
       .self$.name <- name
       invisible()
     },
-    
+
     # TODO: use accessor functions for this
     get_source_name = function() {
       "Get original datasource name provided by manager \\code{\\link{EpivizDataMgr-class}}"
@@ -128,13 +128,13 @@ EpivizData <- setRefClass("EpivizData",
       .self$.source_name <- source_name
       invisible()
     },
-    
+
     set_limits = function(ylim) {
       "Set plotting limits for continuous data"
       if (!.self$.check_limits(ylim))
           stop("'invalid' limits argument")
       .self$.ylim <- ylim
-    }, 
+    },
     get_measurements = function() {
       "Get description of measurements served by this object"
       stop("'get_measurements' called on virtual class object")
@@ -151,7 +151,7 @@ EpivizData <- setRefClass("EpivizData",
       "Set data manager, \\code{\\link{EpivizDataMgr-class}}"
       if (!is(mgr, "EpivizDataMgr"))
         stop("'mgr' must be of class 'EpivizDataMgr'")
-      
+
       .self$.mgr <- mgr
       invisible()
     },
@@ -190,8 +190,8 @@ EpivizData$methods(
       stop("'query' must be of length 1")
     }
 
-    if (is.null(.self$.cur_query) || 
-        !identical(unname(query), unname(.self$.cur_query))) 
+    if (is.null(.self$.cur_query) ||
+        !identical(unname(query), unname(.self$.cur_query)))
     {
       .self$.cur_query <- query
       olaps <- suppressWarnings(GenomicRanges::findOverlaps(query, .self$.object, select="all"))
@@ -212,11 +212,11 @@ EpivizData$methods(
   get_rows = function(query, metadata, useOffset = FALSE) {
     "Get genomic interval information overlapping query <\\code{\\link{GenomicRanges}}> region"
     if (is.null(query)) {
-      out <- list(globalStartIndex=NULL, useOffset=FALSE,
-                  values=list(id=list(),
-                              start=list(),
-                              end=list(),
-                              metadata=.self$.get_metadata(integer(), metadata)))
+      out <- list(globalStartIndex=1, useOffset=FALSE,
+                  values=list(id=as.vector(seqnames(.self$.object)),
+                              start=start(.self$.object),
+                              end=end(.self$.object),
+                              metadata=.self$.get_metadata(1:length(.self$.object), metadata)))
       return(out)
     }
 
@@ -270,7 +270,8 @@ EpivizData$methods(
   get_values=function(query, measurement, round=TRUE) {
     "Get measurement values for features overlapping query region <\\code{\\link{GenomicRanges}}"
     if (is.null(query)) {
-      out <- list(globalstartIndex=NULL, values=list())
+      out <- list(globalstartIndex=1,
+        values=list(.self$.get_values_from_hits(1:length(.self$.object), measurement, round = round)))
       return(out)
     }
 
@@ -286,6 +287,54 @@ EpivizData$methods(
       }
     }
     return(out)
+  },
+  toJSON = function(chr=NULL, start, end) {
+    "Convert data to JSON"
+
+    if (is.null(start)){
+      start <- 1
+    }
+
+    if (is.null(end)){
+      end <- .Machine$integer.max
+    }
+
+    if (is.null(chr)) {
+      query <- NULL
+    } else {
+      query <- GRanges(seqnames=chr, ranges=IRanges(start=start,end=end))
+    }
+
+    row_data <- .self$get_rows(query = query, metadata=c())
+    col_data <- .self$.get_col_data(query)
+
+    result <- list(rows=row_data, cols=col_data)
+    data_json <- epivizrChart::json_writer(result)
+
+    measurements <- .self$get_measurements()
+    for (i in 1:length(measurements)) {
+      measurements[[i]]@dataprovider <- "epivizr"
+    }
+
+    ms_list <- lapply(measurements, as.list)
+    ms_json <- epivizrChart::json_writer(ms_list)
+
+    return(list(measurements=ms_json, data=data_json))
+  },
+  .get_col_data = function(query) {
+    ms_list <- .self$get_measurements()
+    cols <- list()
+
+    for (i in 1:length(ms_list)) {
+      ms <- ms_list[[i]]
+      values <- .self$get_values(query=query, measurement=ms@id)
+      cols[[ms@id]] <- values
+    }
+
+    return(cols)
+  },
+  export = function(host, unix.socket, user, pass, db_name) {
+   # TODO
   }
 )
 

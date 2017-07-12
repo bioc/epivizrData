@@ -145,6 +145,9 @@ EpivizFeatureData$methods(
     col_names <- colnames(.self$.object)
     m <- match(measurement, col_names)
     unname(assay(.self$.object, .self$.assay)[cur_hits, m])
+  },
+  get_default_chart_type_html = function() {
+    "epiviz-json-scatter-plot"
   }
 )
 
