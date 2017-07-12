@@ -7,6 +7,9 @@
 #' @seealso EpivizData
 EpivizBlockData <- setRefClass("EpivizBlockData",
   contains="EpivizTrackData",
+  fields=list(
+    # step="numeric"
+  ),
   methods=list(
   	initialize=function(...) {
   		callSuper(...)
