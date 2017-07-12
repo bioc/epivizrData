@@ -89,7 +89,7 @@ EpivizGeneInfoData$methods(
     out
   },
   get_default_chart_type_html = function() {
-    stop("Genes Track is currently not supported for polymer.")
+    "epiviz-json-genes-track"
   },
   .get_col_data = function(query) {
     return(NULL)
