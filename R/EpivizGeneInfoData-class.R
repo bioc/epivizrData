@@ -95,6 +95,73 @@ EpivizGeneInfoData$methods(
     return(NULL)
   },
   export = function(host, unix.socket, user, pass, db_name) {
-   # TODO
+    driver <- RMySQL::MySQL()
+    connection <- DBI::dbConnect(drv=driver, host=host,
+      unix.socket=unix.socket, user=user, pass=pass)
+
+    if (is.null(connection)){
+      stop("Couldn't connect to ", host)
+    }
+
+    # INSERT INDEX TO DB
+    index_query <- .self$.insert_index_query(db_name)
+    DBI::dbSendQuery(connection,index_query)
+
+    # CREATE TABLE IN DB
+    table_query <- .self$.create_table_query(db_name)
+    DBI::dbSendQuery(connection, table_query)
+
+    # INSERT DATA TO DB
+    all_rows <- .self$get_rows(query=NULL, metadata=c())
+    values <- all_rows$values
+    df <- data.frame(chr=values$chr, start=values$start, end=values$end)
+
+    apply(df, 1, function(row, con, db, ds) {
+      insert_query <- paste0(
+        "INSERT INTO TABLE `", db, ".", ds, "` ",
+        "(chr, start, end) VALUES('", row$chr, "',", row$start, ",", row$end, ")")
+
+      DBI::dbSendQuery(con,insert_query)
+    }, con=connection, db=db_name, ds=datasource)
+
+    DBI::dbDisconnect(connection)
+
+    invisible()
+  },
+  .insert_index_query = function(db_name){
+    index <- "gene_data_index"
+    min <- 0
+    max <- 0
+    window_size <- 0
+    annotation <- NULL
+    datasource <- .self$get_name()
+
+    index_query <- paste0(
+      "INSERT INTO TABLE `", db_name, ".", index,
+      "` VALUES (",
+      "'", datasource, "'",
+      "'", datasource, "'",
+      "'", datasource, "'",
+      "'", datasource, "'",
+      min,
+      max,
+      window_size,
+      annotation, # Annotation col:  (JSON format). for example {"tissue": "colon", "subtype": "tumor"}
+      ")")
+
+    return(index_query)
+  },
+  .create_table_query = function(db_name) {
+    datasource <- .self$get_name()
+    return(paste0(
+      "CREATE TABLE `", db_name, ".", datasource, "` ",
+      "VALUES (",
+      "`id` bigint(20) NOT NULL AUTO_INCREMENT,
+      `chr` varchar(20) NOT NULL,
+      `start` bigint(20) NOT NULL,
+      `end` bigint(20) NOT NULL,
+      PRIMARY KEY (`id`,`chr`,`start`),
+      KEY `location_idx` (`start`,`end`)
+    ) ENGINE=MyISAM AUTO_INCREMENT=45891354 DEFAULT CHARSET=latin1"))
   }
 )
