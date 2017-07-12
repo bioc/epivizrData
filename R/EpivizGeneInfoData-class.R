@@ -158,7 +158,7 @@ EpivizGeneInfoData$methods(
     datasource <- .self$get_name()
 
     index_query <- paste0(
-      "INSERT IGNORE INTO ", db_name, ".", index,
+      "REPLACE INTO ", db_name, ".", index,
       " VALUES (",
       "'", datasource, "'", ",",
       "'", datasource, "'", ",",
