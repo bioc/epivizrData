@@ -151,6 +151,32 @@ EpivizFeatureData$methods(
   },
   get_metadata_columns = function() {
     .self$.metadata
-  }
+  },
+  .get_sql_index_table_info = function(...) {
+    "Auxiliary function for .mysql_insert_index that returns details to construct 
+    an insert query for an EpivizFeatureData object's index table
+    \\describe{
+    \\item{...}{Annotation argument is not used for EpivizFeatureData}
+    }"
+    list(
+      index_table="bp_data_index",
+      values=lapply(.self$get_measurements(), function(ms) {
+        if (is.null(ms@annotation)) {
+          annotation <- "NULL"
+        } else {
+          annotation <- ms@annotation
+        }
+        paste0(
+          "'", .self$get_name(), "'", ",", # measurement_id
+          "'", .self$get_name(), "'", ",", # measurement_name
+          "'", .self$get_name(), "'", ",", # location
+          "'", ms@id, "'", ",", # column_name
+          ms@minValue, ",", # min
+          ms@maxValue, ",", # max
+          0, ",", # window size
+          "'", annotation,"'")
+      })
+      )
+    }
 )
 

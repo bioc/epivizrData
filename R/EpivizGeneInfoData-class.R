@@ -94,30 +94,21 @@ EpivizGeneInfoData$methods(
   .get_col_data = function(query) {
     return(NULL)
   },
-  .mysql_insert_index = function(db_name, annotation=NULL) {
-    "Auxiliary function for toMySQL that returns a string represention of
-    an insert query for the EpivizGeneInfoData object
-    \\describe{
-    \\item{db_name}{The name of the MySQL database}
-    \\item{Annotation}{Annotations in JSON format}
-    }"
+  .get_sql_index_table_info = function(annotation) {
     if (is.null(annotation)) {
       annotation <- "NULL"
     }
-
-    query <- list(paste0(
-      "INSERT INTO ", db_name, ".gene_data_index",
-      " VALUES (",
-      "'", .self$get_name(), "'", ",", # measurement_id
-      "'", .self$get_name(), "'", ",", # measurement_name
-      "'", .self$get_name(), "'", ",", # location
-      "'", .self$get_name(), "'", ",", # column_name
-      0, ",", # min
-      0, ",", # max
-      "'", annotation, "'",
-      ")"))
-
-    query
+    list(index_table="gene_data_index",
+      values=list(paste0(
+        "'", .self$get_name(), "'", ",", # measurement_id
+        "'", .self$get_name(), "'", ",", # measurement_name
+        "'", .self$get_name(), "'", ",", # location
+        "'", .self$get_name(), "'", ",", # column_name
+        0, ",", # min
+        0, ",", # max
+        "'", annotation, "'")
+        )
+      )
   },
   get_metadata_columns = function() {
     return(c("gene", "exon_starts","exon_ends"))
