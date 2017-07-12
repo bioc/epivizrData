@@ -41,6 +41,7 @@ test_that("disconnected mgr fetch works", {
               useOffset=FALSE,
               values=list(
                 id=1:10,
+                chr=rep("chr6", 10),
                 start=30000000+(1:10),
                 end=30000000+(100:109),
                 metadata=NULL))
@@ -52,6 +53,7 @@ test_that("disconnected mgr fetch works", {
               useOffset=FALSE,
               values=list(
                 id=list(),
+                chr=list(),
                 start=list(),
                 end=list(),
                 metadata=NULL))
@@ -63,6 +65,7 @@ test_that("disconnected mgr fetch works", {
               useOffset=FALSE,
               values=list(
                 id=seq(len=length(seq(1,100,by=5))),
+                chr=rep("chr6", 20),
                 start=30000000+seq(1,100,by=5),
                 end=30000000+seq(1,100,by=5),
                 metadata=NULL))
@@ -83,6 +86,7 @@ test_that("disconnected mgr fetch works", {
   out <- list(globalStartIndex=hits[1],
               useOffset=FALSE,
               values=list(id=hits,
+                          chr=as.vector(seqnames(tmp)),
                           start=start(tmp),
                           end=end(tmp),
                           metadata=list(PROBEID=rowRanges(tmp)$PROBEID,

@@ -9,6 +9,7 @@ test_that("block data fetch works", {
   out <- list(globalStartIndex=2,
               useOffset=FALSE,
               values=list(id=2:6,
+                chr=rep("chr1", 5),
                 start=2:6,
                 end=2:6,
                 metadata=NULL))
@@ -25,6 +26,7 @@ test_that("block fetch works on unsorted data", {
   out <- list(globalStartIndex=2,
               useOffset=FALSE,
               values=list(id=2:6,
+                chr=rep("chr1", 5),
                 start=2:6,
                 end=2:6,
                 metadata=(NULL)))
@@ -44,6 +46,7 @@ test_that("data fetch works on bp data", {
   out <- list(globalStartIndex=2,
               useOffset=FALSE,
               values=list(id=list(2),
+                chr=list("chr1"),
                 start=list(6),
                 end=list(6),
                 metadata=NULL))
@@ -71,6 +74,7 @@ test_that("data fetch works on bp data with NAs", {
   out <- list(globalStartIndex=NULL,
              useOffset=FALSE,
              values=list(id=list(),
+                         chr=list(),
                          start=list(),
                          end=list(),
                          metadata=NULL))
@@ -103,6 +107,7 @@ test_that("feature data fetch works", {
               useOffset=FALSE,
               values=list(
                 id=hits,
+                chr=as.vector(seqnames(tmp)),
                 start=start(tmp),
                 end=end(tmp),
                 metadata=list(PROBEID=rowRanges(tmp)$PROBEID,
@@ -135,6 +140,7 @@ test_that("geneinfo fetch works", {
               useOffset=FALSE,
               values=list(
                 id=hits,
+                chr=as.vector(seqnames(tmp)),
                 start=start(tmp),
                 end=end(tmp),
                 metadata=list(gene=unname(as.character(tmp$Gene)),
