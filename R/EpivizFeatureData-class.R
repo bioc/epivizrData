@@ -1,12 +1,12 @@
 #' Data container for RangedSummarizedExperiment objects
-#' 
+#'
 #' Used to serve general data (used in e.g., scatter plots and heatmaps). Wraps
 #' \code{\link{RangedSummarizedExperiment}} objects. Numeric values obtained from
 #' \code{assays} slot
-#' 
+#'
 #' @docType class
 #' @seealso EpivizData
-#' 
+#'
 EpivizFeatureData <- setRefClass("EpivizFeatureData",
   contains="EpivizData",
   fields=list(.assay="ANY", .metadata="ANY"),
@@ -93,13 +93,13 @@ EpivizFeatureData$methods(
   get_measurements=function() {
     out <- lapply(.self$.columns, function(cur_col) {
       m <- match(cur_col, .self$.columns)
-      
+
       anno <- NULL
       if (ncol(colData(.self$.object)) > 0) {
         anno <- as.list(colData(.self$.object)[cur_col,,drop=FALSE])
-        anno <- lapply(anno, as.character)          
+        anno <- lapply(anno, as.character)
       }
-      
+
       EpivizMeasurement(id=cur_col,
                         name=cur_col,
                         type="feature",
@@ -148,6 +148,9 @@ EpivizFeatureData$methods(
   },
   get_default_chart_type_html = function() {
     "epiviz-json-scatter-plot"
+  },
+  get_metadata_columns = function() {
+    return(.self$.metadata)
   }
 )
 

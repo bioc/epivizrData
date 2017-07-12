@@ -4,7 +4,8 @@ EpivizTrackData <- setRefClass("EpivizTrackData",
   	initialize = function(object=GNCList(GRanges()), ...) {
 	  	callSuper(object=object, ...)
 	  },
-  	.check_class = function(object) { is(object, "GenomicRanges") }
+  	.check_class = function(object) { is(object, "GenomicRanges") },
+    get_metadata_columns = function() { return(NULL) }
   )
 )
 
@@ -19,4 +20,3 @@ EpivizTrackData <- setRefClass("EpivizTrackData",
 }
 
 S4Vectors::setValidity2("EpivizTrackData", .valid.EpivizTrackData)
-

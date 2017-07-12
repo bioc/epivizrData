@@ -59,7 +59,7 @@ EpivizGeneInfoData$methods(
       datasourceGroup = .self$.id,
       datasourceName = .self$.source_name,
       defaultChartType = .self$get_default_chart_type(),
-      metadata=c("gene", "exon_starts","exon_ends")))
+      metadata=.self$get_metadata_columns()))
     out
   },
   get_rows=function(query, metadata) {
@@ -91,7 +91,7 @@ EpivizGeneInfoData$methods(
   get_default_chart_type_html = function() {
     stop("Genes Track is currently not supported for polymer.")
   },
-  .get_col_data = function(chr, start, end) {
+  .get_col_data = function(query) {
     return(NULL)
   },
   .mysql_insert_index = function(db_name, annotation) {
@@ -125,5 +125,8 @@ EpivizGeneInfoData$methods(
       PRIMARY KEY (`id`,`chr`,`start`),
       KEY `location_idx` (`start`,`end`)
     ) ENGINE=MyISAM DEFAULT CHARSET=latin1"))
+  },
+  get_metadata_columns = function() {
+    return(c("gene", "exon_starts","exon_ends"))
   }
 )
