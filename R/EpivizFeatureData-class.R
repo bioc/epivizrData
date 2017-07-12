@@ -150,7 +150,7 @@ EpivizFeatureData$methods(
     "epiviz-json-scatter-plot"
   },
   get_metadata_columns = function() {
-    return(.self$.metadata)
+    .self$.metadata
   }
 )
 

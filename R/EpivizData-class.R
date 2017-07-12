@@ -290,16 +290,13 @@ EpivizData$methods(
     }
     return(out)
   },
-  toJSON = function(chr=NULL, start, end) {
+  toJSON = function(chr=NULL, start=NULL, end=NULL) {
     "Convert data to JSON"
 
-    if (is.null(start)){
+    if (is.null(start))
       start <- 1
-    }
-
-    if (is.null(end)){
+    if (is.null(end))
       end <- .Machine$integer.max
-    }
 
     if (is.null(chr)) {
       query <- NULL
@@ -336,22 +333,31 @@ EpivizData$methods(
     return(cols)
   },
   toMySQL = function(host=NULL, unix.socket=NULL,
-    user, pass, db_name, annotation=NULL, batch=50 ) {
-
+    username, password, db_name, annotation=NULL, batch=50 ) {
+    "Send EpivizData to a MySQL Database
+    \\describe{
+    \\item{host}{Hostname}
+    \\item{unix.socket}{Unix Socket}
+    \\item{username}{Username for MySQL database}
+    \\item{password}{Password for MySQL database}
+    \\item{db_name}{Name of MySQL database}
+    \\item{annotation}{Annotation for index table}
+    \\item{batch}{Batch size for data sent to the MySQL database at a time}
+    }"
     connection <- DBI::dbConnect(drv=RMySQL::MySQL(), host=host,
-      unix.socket=unix.socket, username=user, password=pass)
-
-    # insert index in db
-    index_query <- .self$.mysql_insert_index(db_name, annotation)
-    DBI::dbSendQuery(connection, index_query)
-
-    # create table for data in db
-    table_query <- .self$.mysql_create_table(db_name)
-    DBI::dbSendQuery(connection, table_query)
+      unix.socket=unix.socket, username=username, password=password)
 
     df <- as.data.frame(.self, stringsAsFactors=FALSE)
 
-    # Wrap character columns in single quotes for SQL query
+    create_table_query <- .self$.mysql_create_table(df, db_name)
+    DBI::dbSendQuery(connection, create_table_query)
+
+    index_queries <- .self$.mysql_insert_index(db_name, annotation)
+    for (query in index_queries) {
+      DBI::dbSendQuery(connection, query)
+    }
+
+    # wrap character columns in single quotes for SQL query
     filter <- sapply(colnames(df), function(colname) is.character(df[,colname]))
     df[,filter] <- apply(df[,filter], 2, function(col){ paste0("'", col, "'")})
 
@@ -359,18 +365,17 @@ EpivizData$methods(
     insert_queries <- lapply(seq(1, nrow(df), batch),
       function(index, step, datasource) {
         # check if our step is outside the size of df
-        # TODO: This check should only happen on the last index
+        # TODO: This only occurs on the last index (move outside)
         if ((nrow(df) - index) < step) {
           step <- (nrow(df) - index)
         }
 
-        batch_values <- lapply(index:(index+step), function(i) {
-          paste0("(", paste(df[i,], collapse = ','), ")")
+        batch_values <- apply(df[index:(index+step),], 1, function(row) {
+          paste0("(", paste0(row, collapse = ','), ")")
         })
 
         paste0("INSERT INTO ", db_name, ".`", datasource, "` ",
           "(", paste0(colnames(df),collapse = ', '), ") VALUES ", batch_values)
-
       }, step=(batch-1), datasource=.self$get_name())
 
     for (query in insert_queries) {
@@ -380,5 +385,83 @@ EpivizData$methods(
     DBI::dbDisconnect(connection)
 
     invisible()
+  },
+  .mysql_create_table = function(df, db_name) {
+    "Auxiliary method for toMySQL that returns a string representation of a table
+    creation query for this EpivizData object
+    \\describe{
+    \\item{df}{The EpivizData object as a data frame (stringsAsFactors must be FALSE)}
+    \\item{db_name}{The name of the SQL database}
+    }"
+    # filtering column names without chr, start, and end
+    # (they are hardcoded in query below)
+    filter <- c(-1,-2,-3)
+    col_names <- colnames(df[filter])
+
+    # SQL types
+    sql_cols <- sapply(col_names, function(col_name) {
+      if (is.character(df[,col_name])) {
+        # the bytes we want allocated for this column in the table
+        max <- max(nchar(df[,col_name]))
+
+        paste0("`", col_name, "`", " varchar(", max,")")
+      } else if (is.numeric(df[,col_name])){
+        paste0("`", col_name, "`", " double")
+      }
+    })
+
+    create_table_query <- paste0(
+      "CREATE TABLE IF NOT EXISTS ", db_name, ".`", .self$get_name(), "` (
+      `id` bigint(20) NOT NULL AUTO_INCREMENT,",
+      "`chr` varchar(20) NOT NULL,",
+      "`start` bigint(20) NOT NULL,",
+      "`end` bigint(20) NOT NULL, ",
+      paste0(sql_cols, sep=",", collapse=""),
+      "PRIMARY KEY (`id`,`chr`,`start`),",
+      "KEY `location_idx` (`start`,`end`)",
+      ") ENGINE=MyISAM DEFAULT CHARSET=latin1"
+    )
+
+    if (nrow(df) > 1000000){
+      chrs <- unique(df$chr)
+      return(paste0(
+        create_table_query, " ",
+        "PARTITION BY LIST COLUMNS(chr) ",
+        "SUBPARTITION BY HASH (start) ",
+        "SUBPARTITIONS 10 ",
+        "(", paste0("PARTITION ", chrs, " VALUES IN ('", chrs, "') ENGINE = MyISAM",
+          collapse=",")))
+    }
+
+    create_table_query
+  },
+  .mysql_insert_index = function(db_name, ...) {
+    "Auxiliary function for toMySQL that returns a string represention of
+    an insert query for the EpivizData object
+    \\describe{
+    \\item{db_name}{The name of the MySQL database}
+    \\item{...}{Annotation field is only passed in for GeneInfoData and BlockData}
+    }"
+
+    queries <- lapply(.self$get_measurements(), function(ms) {
+      if (is.null(ms[[1]]@annotation)) {
+          annotation <- "NULL"
+      }
+
+      paste0(
+        "INSERT INTO ", db_name, ".bp_data_index", # make this a function
+        " VALUES (",
+        "'", .self$get_name(), "'", ",", # measurement_id
+        "'", .self$get_name(), "'", ",", # measurement_name
+        "'", .self$get_name(), "'", ",", # location
+        "'", ms[[1]]@id, "'", ",", # column_name
+        ms[[1]]@minValue, ",", # min
+        ms[[1]]@maxValue, ",", # max
+        0, ",", # window size
+        "'", annotation,"'",
+        ")")
+    })
+
+    queries
   }
 )

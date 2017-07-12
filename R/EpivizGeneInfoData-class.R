@@ -94,12 +94,18 @@ EpivizGeneInfoData$methods(
   .get_col_data = function(query) {
     return(NULL)
   },
-  .mysql_insert_index = function(db_name, annotation) {
-    if (is.null(annotation) || missing(annotation)){
+  .mysql_insert_index = function(db_name, annotation=NULL) {
+    "Auxiliary function for toMySQL that returns a string represention of
+    an insert query for the EpivizGeneInfoData object
+    \\describe{
+    \\item{db_name}{The name of the MySQL database}
+    \\item{Annotation}{Annotations in JSON format}
+    }"
+    if (is.null(annotation)) {
       annotation <- "NULL"
     }
 
-    return(paste0(
+    query <- list(paste0(
       "INSERT INTO ", db_name, ".gene_data_index",
       " VALUES (",
       "'", .self$get_name(), "'", ",", # measurement_id
@@ -110,21 +116,8 @@ EpivizGeneInfoData$methods(
       0, ",", # max
       "'", annotation, "'",
       ")"))
-  },
-  .mysql_create_table = function(db_name) {
-    return(paste0(
-      "CREATE TABLE IF NOT EXISTS ", db_name, ".`", .self$get_name(), "` (
-      `id` bigint(20) NOT NULL AUTO_INCREMENT,
-      `chr` varchar(20) NOT NULL,
-      `start` bigint(20) NOT NULL,
-      `end` bigint(20) NOT NULL,
-      `gene` varchar(255) DEFAULT NULL,
-      `strand` varchar(20) DEFAULT NULL,
-      `exon_starts` text,
-      `exon_ends` text,
-      PRIMARY KEY (`id`,`chr`,`start`),
-      KEY `location_idx` (`start`,`end`)
-    ) ENGINE=MyISAM DEFAULT CHARSET=latin1"))
+
+    query
   },
   get_metadata_columns = function() {
     return(c("gene", "exon_starts","exon_ends"))

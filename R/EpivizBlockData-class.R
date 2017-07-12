@@ -60,11 +60,30 @@ EpivizBlockData$methods(
   get_default_chart_type_html = function() {
     "epiviz-json-blocks-track"
   },
-  .get_col_data = function(chr, start, end) {
+  .get_col_data = function(query) {
     return(NULL)
   },
-  export = function(host, unix.socket, user, pass, db_name) {
-    # TODO
+  .mysql_insert_index = function(db_name, annotation=NULL) {
+    "Auxiliary function for toMySQL that returns a string represention of
+    an insert query for the EpivizBlockData object
+    \\describe{
+    \\item{db_name}{The name of the MySQL database}
+    \\item{Annotation}{Annotations in JSON format}
+    }"
+    if (is.null(annotation)) {
+      annotation <- "NULL"
+    }
+
+    query <- list(paste0(
+      "INSERT INTO ", db_name, ".block_data_index",
+      " VALUES (",
+      "'", .self$get_name(), "'", ",", # measurement_id
+      "'", .self$get_name(), "'", ",", # measurement_name
+      "'", .self$get_name(), "'", ",", # location
+      "'", annotation, "'",
+      ")"))
+
+    query
   }
 )
 
