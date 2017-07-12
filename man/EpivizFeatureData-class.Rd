@@ -16,6 +16,8 @@ Used to serve general data (used in e.g., scatter plots and heatmaps). Wraps
 \item{\code{get_default_chart_type()}}{Get name of default chart type for this data type}
 
 \item{\code{get_measurements()}}{Get description of measurements served by this object}
+
+\item{\code{get_metadata_columns()}}{Get the metadata served by this object}
 }}
 
 \seealso{

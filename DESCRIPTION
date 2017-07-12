@@ -26,12 +26,12 @@ Suggests: testthat, roxygen2, bumphunter, hgu133plus2.db, Mus.musculus,
         EnsDb.Mmusculus.v79
 License: MIT + file LICENSE
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 6.0.1.9000
 Collate: 'epivizrData-package.R' 'EpivizMeasurement-class.R' 'EpivizDataMgr-class.R' 'createMgr.R'
         'EpivizData-class.R' 'EpivizTrackData-class.R'
         'EpivizBlockData-class.R' 'EpivizBpData-class.R'
         'EpivizGeneInfoData-class.R' 'EpivizFeatureData-class.R'
-        'make_gene_info_gr.R' 'register-methods.R'
+        'make_gene_info_gr.R' 'register-methods.R' 'utils.R'
 VignetteBuilder: knitr
 NeedsCompilation: no
 Author: Hector Corrada Bravo [aut, cre], Florin Chelaru [aut]

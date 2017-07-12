@@ -17,6 +17,8 @@ Data container for epiviz data server
 
 \item{\code{get_measurements()}}{Get description of measurements served by this object}
 
+\item{\code{get_metadata_columns()}}{Get the metadata served by this object}
+
 \item{\code{get_name()}}{Get datasource name, usually set by manager \code{\link{EpivizDataMgr-class}}}
 
 \item{\code{get_rows(query, metadata, useOffset = FALSE)}}{Get genomic interval information overlapping query <\code{\link{GenomicRanges}}> region}
@@ -36,6 +38,20 @@ Data container for epiviz data server
 \item{\code{set_name(name)}}{Set datasource name, usually set by manager \code{\link{EpivizDataMgr-class}}}
 
 \item{\code{set_source_name(source_name)}}{Set original datasource name, used by manager \code{\link{EpivizDataMgr-class}}}
+
+\item{\code{toJSON(chr = NULL, start = NULL, end = NULL)}}{Convert data to JSON}
+
+\item{\code{toMySQL(host = NULL, unix.socket = NULL, username, password, db_name,
+  annotation = NULL, batch = 50)}}{Send EpivizData to a MySQL Database
+\describe{
+\item{host}{Hostname}
+\item{unix.socket}{Unix Socket}
+\item{username}{Username for MySQL database}
+\item{password}{Password for MySQL database}
+\item{db_name}{Name of MySQL database}
+\item{annotation}{Annotation for index table}
+\item{batch}{Batch size for data sent to the MySQL database at a time}
+}}
 
 \item{\code{update(new_object, send_request = TRUE)}}{Update underlying data object with new object}
 }}
