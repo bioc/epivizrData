@@ -4,7 +4,6 @@ setClassUnion("EpivizDataMgrOrNULL", c("EpivizDataMgr", "NULL"))
 #'
 #' @import methods
 #' @import S4Vectors
-#' @import DBI
 #' @export
 EpivizData <- setRefClass("EpivizData",
   contains="VIRTUAL",
