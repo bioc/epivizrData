@@ -332,34 +332,29 @@ EpivizData$methods(
 
     return(cols)
   },
-  toMySQL = function(host=NULL, unix.socket=NULL,
-    username, password, db_name, annotation=NULL, batch=50 ) {
+  toMySQL = function(connection, db_name, annotation=NULL, batch=50 ) {
     "Send EpivizData to a MySQL Database
     \\describe{
-    \\item{host}{Hostname}
-    \\item{unix.socket}{Unix Socket}
-    \\item{username}{Username for MySQL database}
-    \\item{password}{Password for MySQL database}
+    \\item{connection}{DBIConnection to a database}
     \\item{db_name}{Name of MySQL database}
     \\item{annotation}{Annotation for index table}
     \\item{batch}{Batch size for data sent to the MySQL database at a time}
     }"
-    connection <- DBI::dbConnect(drv=RMySQL::MySQL(), host=host,
-      unix.socket=unix.socket, username=username, password=password)
 
     df <- as.data.frame(.self, stringsAsFactors=FALSE)
 
     create_table_query <- .self$.mysql_create_table(df, db_name)
     DBI::dbSendQuery(connection, create_table_query)
 
-    index_queries <- .self$.mysql_insert_index(db_name, annotation)
-    for (query in index_queries) {
-      DBI::dbSendQuery(connection, query)
-    }
+    index_query <- .self$.mysql_insert_index(db_name, annotation)
+    DBI::dbSendQuery(connection, index_query)
 
     # wrap character columns in single quotes for SQL query
     filter <- sapply(colnames(df), function(colname) is.character(df[,colname]))
-    df[,filter] <- apply(df[,filter], 2, function(col){ paste0("'", col, "'")})
+    df[,filter] <- apply(
+      as.data.frame(df[,filter]), # coerce into DF for the case of an atomic vector
+      2, function(col) paste0("'", col, "'")
+    )
 
     # batch queries
     insert_queries <- lapply(seq(1, nrow(df), batch),
@@ -370,25 +365,29 @@ EpivizData$methods(
           step <- (nrow(df) - index)
         }
 
-        batch_values <- apply(df[index:(index+step),], 1, function(row) {
-          paste0("(", paste0(row, collapse = ','), ")")
-        })
-
-        paste0("INSERT INTO ", db_name, ".`", datasource, "` ",
-          "(", paste0(colnames(df),collapse = ', '), ") VALUES ", batch_values)
-      }, step=(batch-1), datasource=.self$get_name())
-
+         batch_list <- apply(df[index:(index+step),], 1, 
+           function(row) paste0("(", paste0(row, collapse = ','), ")")
+         )
+         
+         batch_values <- paste0(batch_list, collapse=", ")
+         
+         sql_cols <- paste0(colnames(df), collapse=", ")
+         
+         paste0("INSERT INTO ", db_name, ".`", datasource, "` ",
+          "(", sql_cols, ") VALUES ", batch_values)
+  
+      }, step=(batch-1), datasource=.self$get_name()
+    )
+    
     for (query in insert_queries) {
-      DBI::dbSendQuery(connection, batch)
+      DBI::dbSendQuery(connection, query)
     }
-
-    DBI::dbDisconnect(connection)
 
     invisible()
   },
   .mysql_create_table = function(df, db_name) {
     "Auxiliary method for toMySQL that returns a string representation of a table
-    creation query for this EpivizData object
+    creation query for an EpivizData object
     \\describe{
     \\item{df}{The EpivizData object as a data frame (stringsAsFactors must be FALSE)}
     \\item{db_name}{The name of the SQL database}
@@ -409,19 +408,24 @@ EpivizData$methods(
         paste0("`", col_name, "`", " double")
       }
     })
-
+    
+    if (length(sql_cols) != 0) {
+      cols <- paste0(sql_cols, sep=",", collapse="")
+    } else {
+      cols <- ''
+    }
     create_table_query <- paste0(
       "CREATE TABLE IF NOT EXISTS ", db_name, ".`", .self$get_name(), "` (
       `id` bigint(20) NOT NULL AUTO_INCREMENT,",
       "`chr` varchar(20) NOT NULL,",
       "`start` bigint(20) NOT NULL,",
       "`end` bigint(20) NOT NULL, ",
-      paste0(sql_cols, sep=",", collapse=""),
+      cols,
       "PRIMARY KEY (`id`,`chr`,`start`),",
       "KEY `location_idx` (`start`,`end`)",
       ") ENGINE=MyISAM DEFAULT CHARSET=latin1"
     )
-
+    # Partition the SQL table if data is large
     if (nrow(df) > 1000000){
       chrs <- unique(df$chr)
       return(paste0(
@@ -435,33 +439,18 @@ EpivizData$methods(
 
     create_table_query
   },
-  .mysql_insert_index = function(db_name, ...) {
+  .mysql_insert_index = function(db_name, annotation=NULL) {
     "Auxiliary function for toMySQL that returns a string represention of
-    an insert query for the EpivizData object
+    an insert query for an EpivizData object
     \\describe{
     \\item{db_name}{The name of the MySQL database}
-    \\item{...}{Annotation field is only passed in for GeneInfoData and BlockData}
+    \\item{Annotation}{Annotations}
     }"
-
-    queries <- lapply(.self$get_measurements(), function(ms) {
-      if (is.null(ms[[1]]@annotation)) {
-          annotation <- "NULL"
-      }
-
-      paste0(
-        "INSERT INTO ", db_name, ".bp_data_index", # make this a function
-        " VALUES (",
-        "'", .self$get_name(), "'", ",", # measurement_id
-        "'", .self$get_name(), "'", ",", # measurement_name
-        "'", .self$get_name(), "'", ",", # location
-        "'", ms[[1]]@id, "'", ",", # column_name
-        ms[[1]]@minValue, ",", # min
-        ms[[1]]@maxValue, ",", # max
-        0, ",", # window size
-        "'", annotation,"'",
-        ")")
-    })
-
-    queries
+    sql_index_values <- .self$.get_sql_index_table_info(annotation)
+    
+    query <- paste0("INSERT INTO ", db_name, ".`", sql_index_values$index_table, "`", 
+      " VALUES ", paste0("(", sql_index_values$values, ")", collapse=","))
+    
+    query
   }
 )
