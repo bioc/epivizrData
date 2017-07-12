@@ -92,7 +92,7 @@ EpivizGeneInfoData$methods(
     "epiviz-json-genes-track"
   },
   .get_col_data = function(query) {
-    return(NULL)
+    NULL
   },
   .get_sql_index_table_info = function(annotation) {
     if (is.null(annotation)) {
@@ -111,6 +111,6 @@ EpivizGeneInfoData$methods(
       )
   },
   get_metadata_columns = function() {
-    return(c("gene", "exon_starts","exon_ends"))
+    c("gene", "exon_starts","exon_ends")
   }
 )
