@@ -417,14 +417,13 @@ EpivizData$methods(
     if (length(sql_cols) != 0) {
       cols <- paste0(sql_cols, sep=",", collapse="")
     } else {
-      # empty string will paste nothing for cols below
       cols <- ''
     }
     
     create_table_query <- paste0(
       "CREATE TABLE IF NOT EXISTS ", db_name, ".`", .self$get_name(), '` ', 
       "(`id` bigint(20) NOT NULL AUTO_INCREMENT, ",
-      "`chr` varchar(20) NOT NULL, ",
+      "`chr` varchar(255) NOT NULL, ",
       "`start` bigint(20) NOT NULL, ",
       "`end` bigint(20) NOT NULL, ",
       cols,

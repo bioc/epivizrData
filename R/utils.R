@@ -27,11 +27,6 @@ setMethod ("as.data.frame", signature("EpivizData"),
 #' @param ... arguments for toMySQL (annotation, batch)
 #' @export
 ahToMySQL <-  function (hub_ids, hub, connection, db_name, ...) {
-  
-  # if (!is.list(hub_ids)) {
-  #   stop(hub_ids, " must be a list of record ids")
-  # }
-  
   if (!is(hub, "AnnotationHub")) {
     stop(hub, " must be an 'AnnotationHub' object")
   }
@@ -44,8 +39,6 @@ ahToMySQL <-  function (hub_ids, hub, connection, db_name, ...) {
     })
     
     if (!is.null(record)) {
-      # TODO: Cleaner way to handle errors for unsupported objects
-      # is it better toc  ms_obj <- NULL
       try({
         ms_obj <- epivizrData::register(record)
         ms_obj$set_name(title)
@@ -56,4 +49,6 @@ ahToMySQL <-  function (hub_ids, hub, connection, db_name, ...) {
       }
     }
   }
+
+  invisible()
 }
