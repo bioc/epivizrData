@@ -305,7 +305,7 @@ EpivizData$methods(
       query <- GRanges(seqnames=chr, ranges=IRanges(start=start,end=end))
     }
 
-    row_data <- .self$get_rows(query = query, metadata=c())
+    row_data <- .self$get_rows(query = query, metadata=.self$get_metadata_columns())
     col_data <- .self$.get_col_data(query)
 
     result <- list(rows=row_data, cols=col_data)
@@ -459,5 +459,8 @@ EpivizData$methods(
       " VALUES ", paste0("(", sql_index_values$values, ")", collapse=","))
     
     query
+  },
+  get_metadata_columns = function() {
+    return(NULL)
   }
 )
