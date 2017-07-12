@@ -276,7 +276,6 @@ EpivizData$methods(
       .self$.get_hits(query)
     }
 
-    .self$.get_hits(query)
     if (length(.self$.cur_hits) == 0) {
       out <- list(globalStartIndex=NULL, values=list())
     } else {
