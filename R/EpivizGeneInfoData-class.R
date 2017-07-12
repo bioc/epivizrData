@@ -112,17 +112,40 @@ EpivizGeneInfoData$methods(
     DBI::dbSendQuery(connection, table_query)
 
     # INSERT DATA TO DB
-    all_rows <- .self$get_rows(query=NULL, metadata=c())
+    all_rows <- .self$get_rows(query=NULL, metadata=c("gene", "exon_starts","exon_ends"))
     values <- all_rows$values
-    df <- data.frame(chr=values$chr, start=values$start, end=values$end)
 
-    apply(df, 1, function(row, con, db, ds) {
-      insert_query <- paste0(
-        "INSERT INTO TABLE `", db, ".", ds, "` ",
-        "(chr, start, end) VALUES('", row$chr, "',", row$start, ",", row$end, ")")
+    df <- data.frame(
+      chr=values$chr,
+      start=values$start,
+      end=values$end,
+      strand=values$strand,
+      gene=values$metadata$gene,
+      exon_starts=values$metadata$exon_starts,
+      exon_ends=values$metadata$exon_ends
+    )
 
-      DBI::dbSendQuery(con,insert_query)
-    }, con=connection, db=db_name, ds=datasource)
+    SQL_values <- paste0("('",
+      df[1:nrow(df),'chr'], "',",
+      df[1:nrow(df),'start'], ",",
+      df[1:nrow(df),'end'], ",",
+      df[1:nrow(df),'strand'], ",",
+      df[1:nrow(df),'gene'], ",",
+      df[1:nrow(df),'exon_starts'], ",",
+      df[1:nrow(df),'exon_ends'],
+      ")")
+
+    insert_queries <- lapply(seq(1, length(SQL_values), 50),
+      function(index, step){
+        batch <- paste(na.omit(SQL_values[index:(index+step)]), collapse=",")
+        return(paste0(
+        "INSERT INTO TABLE `", db_name, ".", datasource, "` ",
+        "(chr, start, end, strand, gene, exon_starts, exon_ends) VALUES ", batch))
+    }, step=49)
+
+    for (batch in insert_queries) {
+      DBI::dbSendQuery(connection,insert_query)
+    }
 
     DBI::dbDisconnect(connection)
 
@@ -160,6 +183,10 @@ EpivizGeneInfoData$methods(
       `chr` varchar(20) NOT NULL,
       `start` bigint(20) NOT NULL,
       `end` bigint(20) NOT NULL,
+      `gene` varchar(255) DEFAULT NULL,
+      `strand` varchar(20) DEFAULT NULL,
+      `exon_starts` longtext,
+      `exon_ends` longtext,
       PRIMARY KEY (`id`,`chr`,`start`),
       KEY `location_idx` (`start`,`end`)
     ) ENGINE=MyISAM AUTO_INCREMENT=45891354 DEFAULT CHARSET=latin1"))
