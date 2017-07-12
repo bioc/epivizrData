@@ -212,9 +212,12 @@ EpivizData$methods(
   get_rows = function(query, metadata, useOffset = FALSE) {
     "Get genomic interval information overlapping query <\\code{\\link{GenomicRanges}}> region"
     if (is.null(query)) {
-      out <- list(globalStartIndex=1, useOffset=FALSE,
-                  values=list(id=as.vector(seqnames(.self$.object)),
-                              start=start(.self$.object),
+      start_values <- start(.self$.object)
+
+      out <- list(globalStartIndex=start_values[1], useOffset=FALSE,
+                  values=list(id=1:length(.self$.object),
+                              chr=as.vector(seqnames(.self$.object)),
+                              start=start_values,
                               end=end(.self$.object),
                               metadata=.self$.get_metadata(1:length(.self$.object), metadata)))
       return(out)
@@ -270,8 +273,8 @@ EpivizData$methods(
   get_values=function(query, measurement, round=TRUE) {
     "Get measurement values for features overlapping query region <\\code{\\link{GenomicRanges}}"
     if (is.null(query)) {
-      out <- list(globalstartIndex=1,
-        values=list(.self$.get_values_from_hits(1:length(.self$.object), measurement, round = round)))
+      out <- list(globalstartIndex=start(.self$.object)[1],
+        values=.self$.get_values_from_hits(1:length(.self$.object), measurement, round = round))
       return(out)
     }
 
