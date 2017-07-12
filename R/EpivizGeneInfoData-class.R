@@ -94,22 +94,6 @@ EpivizGeneInfoData$methods(
   .get_col_data = function(query) {
     NULL
   },
-  .get_sql_index_table_info = function(annotation) {
-    if (is.null(annotation)) {
-      annotation <- "NULL"
-    }
-    list(index_table="gene_data_index",
-      values=list(paste0(
-        "'", .self$get_name(), "'", ",", # measurement_id
-        "'", .self$get_name(), "'", ",", # measurement_name
-        "'", .self$get_name(), "'", ",", # location
-        "'", .self$get_name(), "'", ",", # column_name
-        0, ",", # min
-        0, ",", # max
-        "'", annotation, "'")
-        )
-      )
-  },
   get_metadata_columns = function() {
     c("gene", "exon_starts","exon_ends")
   }

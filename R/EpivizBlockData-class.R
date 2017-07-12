@@ -62,19 +62,6 @@ EpivizBlockData$methods(
   },
   .get_col_data = function(query) {
     return(NULL)
-  },
-  .get_sql_index_table_info = function(annotation=NULL) {
-    if (is.null(annotation)) {
-      annotation <- "NULL"
-    }
-    list(index_table="block_data_index",
-      values=list(paste0(
-        "'", .self$get_name(), "'", ",", # measurement_id
-        "'", .self$get_name(), "'", ",", # measurement_name
-        "'", .self$get_name(), "'", ",", # location
-        "'", annotation,"'")
-        )
-    )
   }
 )
 
