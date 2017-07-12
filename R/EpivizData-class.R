@@ -291,13 +291,9 @@ EpivizData$methods(
     }
     return(out)
   },
-  toJSON = function(chr=NULL, start=NULL, end=NULL) {
-    "Convert data to JSON"
-
-    if (is.null(start))
-      start <- 1
-    if (is.null(end))
-      end <- .Machine$integer.max
+  get_data=function(chr=NULL, start=NULL, end=NULL, json=FALSE) {
+    if (is.null(start)) start <- 1
+    if (is.null(end)) end <- .Machine$integer.max
 
     if (is.null(chr)) {
       query <- NULL
@@ -308,8 +304,8 @@ EpivizData$methods(
     row_data <- .self$get_rows(query = query, metadata=.self$get_metadata_columns())
     col_data <- .self$.get_col_data(query)
 
-    result <- list(rows=row_data, cols=col_data)
-    data_json <- epivizrChart::json_writer(result)
+    data <- list(rows=row_data, cols=col_data)
+    if (json) data <- epivizrChart::json_writer(data)
 
     measurements <- .self$get_measurements()
     for (i in 1:length(measurements)) {
@@ -317,9 +313,9 @@ EpivizData$methods(
     }
 
     ms_list <- lapply(measurements, as.list)
-    ms_json <- epivizrChart::json_writer(ms_list)
+    if (json) ms_list <- epivizrChart::json_writer(ms_list)
 
-    list(measurements=ms_json, data=data_json)
+    list(measurements=ms_list, data=data)
   },
   .get_col_data = function(query) {
     ms_list <- .self$get_measurements()
@@ -341,15 +337,15 @@ EpivizData$methods(
     \\item{annotation}{Annotation for index table}
     \\item{batch}{Batch size for data sent to the MySQL database at a time}
     }"
-    # TODO: sample chr indices and if check values have 
+    # TODO: sample chr indices and if check values have
     # 'chr' at the beginning and concat 'chr' if missing
-    
+
     df <- as.data.frame(.self, stringsAsFactors=FALSE)
 
     create_table_query <- .self$.mysql_create_table(df, db_name)
     result <- DBI::dbSendStatement(connection, create_table_query)
     DBI::dbClearResult(result)
-    
+
     index_query <- .self$.mysql_insert_index(db_name, annotation)
     result <- DBI::dbSendStatement(connection, index_query)
     DBI::dbClearResult(result)
@@ -357,6 +353,7 @@ EpivizData$methods(
     # wrap character columns in single quotes for SQL query
     filter <- sapply(colnames(df), function(colname) is.character(df[,colname]))
     df[,filter] <- apply(
+      # df[,filter, drop=FALSE] better?
       as.data.frame(df[,filter]), # coerce into DF for the case of an atomic vector
       2, function(col) paste0("'", col, "'")
     )
@@ -370,20 +367,20 @@ EpivizData$methods(
           step <- (nrow(df) - index)
         }
 
-         batch_list <- apply(df[index:(index+step),], 1, 
+         batch_list <- apply(df[index:(index+step),], 1,
            function(row) paste0("(", paste0(row, collapse = ','), ")")
          )
-         
+
          batch_values <- paste0(batch_list, collapse=", ")
-         
+
          sql_cols <- paste0(colnames(df), collapse=", ")
-         
+
          paste0("INSERT INTO ", db_name, ".`", datasource, "` ",
           "(", sql_cols, ") VALUES ", batch_values)
-  
+
       }, step=(batch-1), datasource=.self$get_name()
     )
-    
+
     for (query in insert_queries) {
       result <- DBI::dbSendStatement(connection, query)
       DBI::dbClearResult(result)
@@ -414,15 +411,15 @@ EpivizData$methods(
         paste0("`", col_name, "`", " double")
       }
     })
-    
+
     if (length(sql_cols) != 0) {
       cols <- paste0(sql_cols, sep=",", collapse="")
     } else {
       cols <- ''
     }
-    
+
     create_table_query <- paste0(
-      "CREATE TABLE IF NOT EXISTS ", db_name, ".`", .self$get_name(), '` ', 
+      "CREATE TABLE IF NOT EXISTS ", db_name, ".`", .self$get_name(), '` ',
       "(`id` bigint(20) NOT NULL AUTO_INCREMENT, ",
       "`chr` varchar(255) NOT NULL, ",
       "`start` bigint(20) NOT NULL, ",
@@ -454,10 +451,10 @@ EpivizData$methods(
     \\item{Annotation}{Annotations}
     }"
     sql_index_values <- .self$.get_sql_index_table_info(annotation)
-    
-    query <- paste0("INSERT INTO ", db_name, ".`", sql_index_values$index_table, "`", 
+
+    query <- paste0("INSERT INTO ", db_name, ".`", sql_index_values$index_table, "`",
       " VALUES ", paste0("(", sql_index_values$values, ")", collapse=","))
-    
+
     query
   },
   get_metadata_columns = function() {
