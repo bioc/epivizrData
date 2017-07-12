@@ -206,11 +206,11 @@ setMethod("register", "ExpressionSet",
 #             register(as(cov,"GRanges"), columns="score", type="bp", ...)
 # })
 
-.register_txdb <- function(object, 
-                            kind = c("gene", "tx"), 
-                            keepSeqlevels=NULL, ...) 
+.register_txdb <- function(object,
+                            kind = c("gene", "tx"),
+                            keepSeqlevels=NULL, ...)
 {
-  cat("creating gene annotation (it may take a bit)\n")
+  message("creating gene annotation (it may take a bit)\n")
   kind <- match.arg(kind)
   gr <- .make_gene_info_gr(object, kind, keepSeqlevels)
   args <- list(...)
