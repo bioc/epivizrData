@@ -215,7 +215,7 @@ EpivizData$methods(
   get_rows = function(query, metadata, useOffset = FALSE) {
     "Get genomic interval information overlapping query <\\code{\\link{GenomicRanges}}> region"
     if (is.null(query)) {
-      .self$.cur_hits <- 1:length(.self$.object)
+      .self$.cur_hits <- seq_len(length(.self$.object))
       .self$.cur_query <- NULL
     } else {
       .self$.get_hits(query)
@@ -273,7 +273,7 @@ EpivizData$methods(
   get_values=function(query, measurement, round=TRUE) {
     "Get measurement values for features overlapping query region <\\code{\\link{GenomicRanges}}"
     if (is.null(query)) {
-      .self$.cur_hits <- 1:length(.self$.object)
+      .self$.cur_hits <- seq_len(length(.self$.object))
       .self$.cur_query <- NULL
     } else {
       .self$.get_hits(query)
@@ -308,7 +308,7 @@ EpivizData$methods(
     if (json) data <- epivizrChart::json_writer(data)
 
     measurements <- .self$get_measurements()
-    for (i in 1:length(measurements)) {
+    for (i in seq_len(length(measurements))) {
       measurements[[i]]@dataprovider <- "epivizr"
     }
 
@@ -321,7 +321,7 @@ EpivizData$methods(
     ms_list <- .self$get_measurements()
     cols <- list()
 
-    for (i in 1:length(ms_list)) {
+    for (i in seq_len(length(ms_list))) {
       ms <- ms_list[[i]]
       values <- .self$get_values(query=query, measurement=ms@id)
       cols[[ms@id]] <- values
