@@ -106,7 +106,6 @@ EpivizData <- setRefClass("EpivizData",
       .self$.id <- id
       invisible()
     },
-
     # TODO: use accessor functions for this
     get_name = function() {
       "Get datasource name, usually set by manager \\code{\\link{EpivizDataMgr-class}}"
@@ -117,7 +116,6 @@ EpivizData <- setRefClass("EpivizData",
       .self$.name <- name
       invisible()
     },
-
     # TODO: use accessor functions for this
     get_source_name = function() {
       "Get original datasource name provided by manager \\code{\\link{EpivizDataMgr-class}}"
@@ -146,6 +144,10 @@ EpivizData <- setRefClass("EpivizData",
     parse_measurement = function(ms_id=NULL) {
       "Parse a measurement description for data served by this object"
       stop("'parse_measurement' called on virtual class object")
+    },
+    get_metadata_columns = function() {
+      "Get the metadata served by this object"
+      stop("'get_metadata_columns' called on virtual class object")
     },
     set_mgr = function(mgr) {
       "Set data manager, \\code{\\link{EpivizDataMgr-class}}"
@@ -212,7 +214,7 @@ EpivizData$methods(
   get_rows = function(query, metadata, useOffset = FALSE) {
     "Get genomic interval information overlapping query <\\code{\\link{GenomicRanges}}> region"
     if (is.null(query)) {
-      .self$.cur_hits <-1:length(.self$.object)
+      .self$.cur_hits <- 1:length(.self$.object)
       .self$.cur_query <- NULL
     } else {
       .self$.get_hits(query)
@@ -270,7 +272,7 @@ EpivizData$methods(
   get_values=function(query, measurement, round=TRUE) {
     "Get measurement values for features overlapping query region <\\code{\\link{GenomicRanges}}"
     if (is.null(query)) {
-      .self$.cur_hits <-1:length(.self$.object)
+      .self$.cur_hits <- 1:length(.self$.object)
       .self$.cur_query <- NULL
     } else {
       .self$.get_hits(query)
@@ -333,10 +335,50 @@ EpivizData$methods(
 
     return(cols)
   },
-  export = function(host, unix.socket, user, pass, db_name) {
-   # TODO
+  toMySQL = function(host=NULL, unix.socket=NULL,
+    user, pass, db_name, annotation=NULL, batch=50 ) {
+
+    connection <- DBI::dbConnect(drv=RMySQL::MySQL(), host=host,
+      unix.socket=unix.socket, username=user, password=pass)
+
+    # insert index in db
+    index_query <- .self$.mysql_insert_index(db_name, annotation)
+    DBI::dbSendQuery(connection, index_query)
+
+    # create table for data in db
+    table_query <- .self$.mysql_create_table(db_name)
+    DBI::dbSendQuery(connection, table_query)
+
+    df <- as.data.frame(.self, stringsAsFactors=FALSE)
+
+    # Wrap character columns in single quotes for SQL query
+    filter <- sapply(colnames(df), function(colname) is.character(df[,colname]))
+    df[,filter] <- apply(df[,filter], 2, function(col){ paste0("'", col, "'")})
+
+    # batch queries
+    insert_queries <- lapply(seq(1, nrow(df), batch),
+      function(index, step, datasource) {
+        # check if our step is outside the size of df
+        # TODO: This check should only happen on the last index
+        if ((nrow(df) - index) < step) {
+          step <- (nrow(df) - index)
+        }
+
+        batch_values <- lapply(index:(index+step), function(i) {
+          paste0("(", paste(df[i,], collapse = ','), ")")
+        })
+
+        paste0("INSERT INTO ", db_name, ".`", datasource, "` ",
+          "(", paste0(colnames(df),collapse = ', '), ") VALUES ", batch_values)
+
+      }, step=(batch-1), datasource=.self$get_name())
+
+    for (query in insert_queries) {
+      DBI::dbSendQuery(connection, batch)
+    }
+
+    DBI::dbDisconnect(connection)
+
+    invisible()
   }
 )
-
-
-
