@@ -212,21 +212,16 @@ EpivizData$methods(
   get_rows = function(query, metadata, useOffset = FALSE) {
     "Get genomic interval information overlapping query <\\code{\\link{GenomicRanges}}> region"
     if (is.null(query)) {
-      start_values <- start(.self$.object)
-
-      out <- list(globalStartIndex=start_values[1], useOffset=FALSE,
-                  values=list(id=1:length(.self$.object),
-                              chr=as.vector(seqnames(.self$.object)),
-                              start=start_values,
-                              end=end(.self$.object),
-                              metadata=.self$.get_metadata(1:length(.self$.object), metadata)))
-      return(out)
+      .self$.cur_hits <-1:length(.self$.object)
+      .self$.cur_query <- NULL
+    } else {
+      .self$.get_hits(query)
     }
 
-    .self$.get_hits(query)
     if (length(.self$.cur_hits) == 0) {
       out <- list(globalStartIndex=NULL, useOffset=FALSE,
                   values=list(id=list(),
+                   chr=list(),
                     start=list(),
                     end=list(),
                     metadata=.self$.get_metadata(.self$.cur_hits, metadata)))
@@ -236,6 +231,7 @@ EpivizData$methods(
                   useOffset=FALSE,
                   values=list(
                     id=.self$.cur_hits,
+                    chr=as.vector(seqnames(.self$.object)),
                     start=start(.self$.object)[.self$.cur_hits],
                     end=end(.self$.object)[.self$.cur_hits],
                     metadata=.self$.get_metadata(.self$.cur_hits, metadata)
@@ -251,6 +247,7 @@ EpivizData$methods(
                     useOffset=TRUE,
                     values=list(
                       id=.self$.cur_hits,
+                      chr=as.vector(seqnames(.self$.object)),
                       start=c(st[1], stDiff),
                       end=c(end[1], endDiff),
                       metadata=.self$.get_metadata(.self$.cur_hits, metadata)
@@ -273,9 +270,10 @@ EpivizData$methods(
   get_values=function(query, measurement, round=TRUE) {
     "Get measurement values for features overlapping query region <\\code{\\link{GenomicRanges}}"
     if (is.null(query)) {
-      out <- list(globalstartIndex=start(.self$.object)[1],
-        values=.self$.get_values_from_hits(1:length(.self$.object), measurement, round = round))
-      return(out)
+      .self$.cur_hits <-1:length(.self$.object)
+      .self$.cur_query <- NULL
+    } else {
+      .self$.get_hits(query)
     }
 
     .self$.get_hits(query)
