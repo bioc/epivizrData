@@ -41,13 +41,9 @@ Data container for epiviz data server
 
 \item{\code{toJSON(chr = NULL, start = NULL, end = NULL)}}{Convert data to JSON}
 
-\item{\code{toMySQL(host = NULL, unix.socket = NULL, username, password, db_name,
-  annotation = NULL, batch = 50)}}{Send EpivizData to a MySQL Database
+\item{\code{toMySQL(connection, db_name, annotation = NULL, batch = 50)}}{Send EpivizData to a MySQL Database
 \describe{
-\item{host}{Hostname}
-\item{unix.socket}{Unix Socket}
-\item{username}{Username for MySQL database}
-\item{password}{Password for MySQL database}
+\item{connection}{DBIConnection to a database}
 \item{db_name}{Name of MySQL database}
 \item{annotation}{Annotation for index table}
 \item{batch}{Batch size for data sent to the MySQL database at a time}
