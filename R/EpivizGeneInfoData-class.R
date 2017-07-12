@@ -97,7 +97,7 @@ EpivizGeneInfoData$methods(
   toMySQL = function(host, unix.socket, user, pass, db_name, annotation=NULL) {
     driver <- RMySQL::MySQL()
     connection <- DBI::dbConnect(drv=driver, host=host,
-      unix.socket=unix.socket, user=user, pass=pass)
+      unix.socket=unix.socket, username=user, password=pass)
 
     # INSERT INDEX TO DB
     index_query <- .self$.insert_index_query(db_name, annotation)
