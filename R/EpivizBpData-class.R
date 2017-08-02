@@ -99,7 +99,33 @@ EpivizBpData$methods(
   },
   get_default_chart_type_html = function() {
     "epiviz-json-line-track"
-  }
+  },
+  .get_sql_index_table_info = function(...) {
+    "Auxiliary function for .mysql_insert_index that returns details to construct 
+    an insert query for an EpivizBpData object's index table
+    \\describe{
+    \\item{...}{Annotation argument is not used for EpivizBpData}
+    }"
+    list(
+      index_table="bp_data_index",
+      values=lapply(.self$get_measurements(), function(ms) {
+        if (is.null(ms@annotation)) {
+          annotation <- "NULL"
+        } else {
+          annotation <- ms@annotation
+        }
+        paste0(
+          "'", .self$get_id(), "'", ",", # measurement_id
+          "'", .self$get_name(), "'", ",", # measurement_name
+          "'", .self$get_id(), "'", ",", # location
+          "'", ms@id, "'", ",", # column_name
+          ms@minValue, ",", # min
+          ms@maxValue, ",", # max
+          0, ",", # window size
+          "'", annotation,"'")
+        })
+      )
+    }
 )
 #   parseMeasurement=function(msId) {
 #     column <- strsplit(msId, split="__")[[1]][2]

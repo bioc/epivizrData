@@ -328,6 +328,149 @@ EpivizData$methods(
 
     cols
   },
+  toMySQL = function(connection, db_name, annotation=NULL, batch=50) {
+    "Send EpivizData to a MySQL Database
+    \\describe{
+    \\item{connection}{DBIConnection to a database}
+    \\item{db_name}{Name of MySQL database}
+    \\item{annotation}{Annotation for index table}
+    \\item{batch}{Batch size for data sent to the MySQL database at a time}
+    }"
+    # TODO: sample chr indices and if check values have
+    # 'chr' at the beginning and concat 'chr' if missing
+
+    df <- as.data.frame(.self, stringsAsFactors=FALSE)
+
+    message("Creating table ", .self$get_id(), " in ", db_name)
+    create_table_query <- .self$.mysql_create_table(df, db_name)
+    result <- DBI::dbSendStatement(connection, create_table_query)
+    DBI::dbClearResult(result)
+
+    message("Inserting index...")
+    index_query <- .self$.mysql_insert_index(db_name, annotation)
+    result <- DBI::dbSendStatement(connection, index_query)
+    DBI::dbClearResult(result)
+
+    # wrap character columns in single quotes for SQL query
+    filter <- sapply(colnames(df), function(colname) is.character(df[,colname]))
+    df[,filter] <- apply(
+      # df[,filter, drop=FALSE] better?
+      as.data.frame(df[,filter]), # coerce into DF for the case of an atomic vector
+      2, function(col) paste0("'", col, "'")
+    )
+
+    # batch queries
+    message("Batching queries...")
+    pb_batch <- utils::txtProgressBar(style=3)
+    insert_queries <- lapply(seq(1, nrow(df), batch),
+      function(index, step, datasource) {
+        # check if our step is outside the size of df
+        # TODO: This only occurs on the last index (move outside)
+        if ((nrow(df) - index) < step) {
+          step <- (nrow(df) - index)
+        }
+        
+        batch_list <- apply(df[index:(index+step),], 1,
+          function(row) paste0("(", paste0(row, collapse = ','), ")")
+        )
+        
+        batch_values <- paste0(batch_list, collapse=", ")
+        sql_cols <- paste0(colnames(df), collapse=", ")
+        
+        res <- paste0("INSERT INTO ", db_name, ".`", datasource, "` ",
+          "(", sql_cols, ") VALUES ", batch_values)
+
+        utils::setTxtProgressBar(pb_batch, (index / nrow(df)))
+
+        res
+      }, step=(batch-1), datasource=.self$get_id()
+    )
+    close(pb_batch)
+    
+    message("Sending queries to: ", db_name, ".", .self$get_id())
+    pb_data <- utils::txtProgressBar(style=3)
+    for (i in seq_len(length(insert_queries))) {
+      query <- insert_queries[[i]]
+      
+      result <- DBI::dbSendStatement(connection, query)
+      DBI::dbClearResult(result)
+      
+      utils::setTxtProgressBar(pb_data, (i / length(insert_queries)))
+    }
+    close(pb_data)
+  
+    message("Done")
+    invisible()
+  },
+  .mysql_create_table = function(df, db_name) {
+    "Auxiliary method for toMySQL that returns a string representation of a table
+    creation query for an EpivizData object
+    \\describe{
+    \\item{df}{The EpivizData object as a data frame (stringsAsFactors must be FALSE)}
+    \\item{db_name}{The name of the SQL database}
+    }"
+    # filtering column names without chr, start, and end
+    # (they are hardcoded in query below)
+    filter <- c(-1,-2,-3)
+    col_names <- colnames(df[filter])
+
+    # SQL column types
+    sql_cols <- sapply(col_names, function(col_name) {
+      if (is.character(df[,col_name])) {
+        # the bytes we want allocated for this column in the table
+        max <- max(nchar(df[,col_name]))
+
+        paste0("`", col_name, "`", " varchar(", max,")")
+      } else if (is.numeric(df[,col_name])){
+        paste0("`", col_name, "`", " double")
+      }
+    })
+
+    if (length(sql_cols) != 0) {
+      cols <- paste0(sql_cols, sep=",", collapse="")
+    } else {
+      cols <- ''
+    }
+
+    create_table_query <- paste0(
+      "CREATE TABLE IF NOT EXISTS ", db_name, ".`", .self$get_id(), '` ',
+      "(`id` bigint(20) NOT NULL AUTO_INCREMENT, ",
+      "`chr` varchar(255) NOT NULL, ",
+      "`start` bigint(20) NOT NULL, ",
+      "`end` bigint(20) NOT NULL, ",
+      cols,
+      "PRIMARY KEY (`id`,`chr`,`start`), ",
+      "KEY `location_idx` (`start`,`end`)",
+      ") ENGINE=MyISAM DEFAULT CHARSET=latin1"
+    )
+    # Partition the SQL table if data is large
+    if (nrow(df) > 1000000){
+      chrs <- unique(df$chr)
+      return(paste0(
+        create_table_query, " ",
+        "PARTITION BY LIST COLUMNS(chr) ",
+        "SUBPARTITION BY HASH (start) ",
+        "SUBPARTITIONS 10 ",
+        "(", paste0("PARTITION `", chrs, "` VALUES IN('", chrs, "') ENGINE = MyISAM",
+          collapse=", "), ")"))
+    }
+
+    create_table_query
+  },
+  .mysql_insert_index = function(db_name, annotation=NULL) {
+    "Auxiliary function for toMySQL that returns a string represention of
+    an insert query for an EpivizData object
+    \\describe{
+    \\item{db_name}{The name of the MySQL database}
+    \\item{Annotation}{Annotations}
+    }"
+    sql_index_values <- .self$.get_sql_index_table_info(annotation)
+
+    query <- paste0("INSERT INTO ", db_name, ".`", sql_index_values$index_table, "`",
+      " VALUES ", paste0("(", sql_index_values$values, ")", collapse=","))
+
+    query
+  },
   get_metadata_columns = function() {
     return(NULL)
   }
