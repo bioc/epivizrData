@@ -328,29 +328,36 @@ EpivizData$methods(
 
     cols
   },
-  toMySQL = function(connection, db_name, annotation=NULL, batch=50) {
+  toMySQL = function(connection, db_name, annotation=NULL, batch=50, index=TRUE) {
     "Send EpivizData to a MySQL Database
     \\describe{
     \\item{connection}{DBIConnection to a database}
     \\item{db_name}{Name of MySQL database}
     \\item{annotation}{Annotation for index table}
-    \\item{batch}{Batch size for data sent to the MySQL database at a time}
+    \\item{batch}{Batch size for data sent to the MySQL database}
+    \\item{index}{Insert into respective index table}
     }"
+    df <- .self$.make_df_for_db()
+    
+    .self$.db_create_table(connection, df, db_name)
+    
+    if (index) .self$.db_insert_index(connection, annotation, db_name)
+    
+    queries <- .self$.db_batch_queries(df, db_name, batch)
+    
+    .self$.db_send_queries(queries, connection, db_name)
+
+    invisible()
+  },
+  .make_df_for_db = function() {
     # TODO: sample chr indices and if check values have
     # 'chr' at the beginning and concat 'chr' if missing
-
+    
     df <- as.data.frame(.self, stringsAsFactors=FALSE)
-
-    message("Creating table ", .self$get_id(), " in ", db_name)
-    create_table_query <- .self$.mysql_create_table(df, db_name)
-    result <- DBI::dbSendStatement(connection, create_table_query)
-    DBI::dbClearResult(result)
-
-    message("Inserting index...")
-    index_query <- .self$.mysql_insert_index(db_name, annotation)
-    result <- DBI::dbSendStatement(connection, index_query)
-    DBI::dbClearResult(result)
-
+    
+    # sanitize to avoid SQL errors
+    colnames(df) <- gsub("\\.", "_", colnames(df))
+    
     # wrap character columns in single quotes for SQL query
     filter <- sapply(colnames(df), function(colname) is.character(df[,colname]))
     df[,filter] <- apply(
@@ -358,11 +365,40 @@ EpivizData$methods(
       as.data.frame(df[,filter]), # coerce into DF for the case of an atomic vector
       2, function(col) paste0("'", col, "'")
     )
-
-    # batch queries
+    
+    df
+  },
+  .db_create_table = function(connection, df, db_name) {
+    message("Creating table ", .self$get_id(), " in ", db_name)
+    
+    create_table_query <- .self$.mysql_create_tbl_query(df, db_name)
+    
+    result <- DBI::dbSendStatement(connection, create_table_query)
+    DBI::dbClearResult(result)
+    
+    invisible()
+  },
+  .db_insert_index = function(connection, annotation, db_name) {
+    message("Inserting index...")
+    
+    if (is.list(annotation))
+      annotation <- epivizrServer::json_writer(annotation)
+    
+    index_query <- .self$.mysql_insert_index_query(db_name, annotation)
+    
+    result <- DBI::dbSendStatement(connection, index_query)
+    DBI::dbClearResult(result)
+    
+    invisible()
+  },
+  .db_batch_queries = function(df, db_name, batch) {
     message("Batching queries...")
+    
+    sql_cols <- paste0(colnames(df), collapse=", ")
+    
     pb_batch <- utils::txtProgressBar(style=3)
-    insert_queries <- lapply(seq(1, nrow(df), batch),
+    
+    queries <- lapply(seq(1, nrow(df), batch),
       function(index, step, datasource) {
         # check if our step is outside the size of df
         # TODO: This only occurs on the last index (move outside)
@@ -375,34 +411,39 @@ EpivizData$methods(
         )
         
         batch_values <- paste0(batch_list, collapse=", ")
-        sql_cols <- paste0(colnames(df), collapse=", ")
         
         res <- paste0("INSERT INTO ", db_name, ".`", datasource, "` ",
           "(", sql_cols, ") VALUES ", batch_values)
-
+        
         utils::setTxtProgressBar(pb_batch, (index / nrow(df)))
-
+        
         res
-      }, step=(batch-1), datasource=.self$get_id()
+      }, step=(batch - 1), datasource=.self$get_id()
     )
+    
     close(pb_batch)
     
+    queries
+  },
+  .db_send_queries = function(queries, connection, db_name) {
     message("Sending queries to: ", db_name, ".", .self$get_id())
+    
     pb_data <- utils::txtProgressBar(style=3)
-    for (i in seq_len(length(insert_queries))) {
-      query <- insert_queries[[i]]
+    
+    for (i in seq_len(length(queries))) {
+      query <- queries[[i]]
       
       result <- DBI::dbSendStatement(connection, query)
       DBI::dbClearResult(result)
       
-      utils::setTxtProgressBar(pb_data, (i / length(insert_queries)))
+      utils::setTxtProgressBar(pb_data, (i / length(queries)))
     }
+    
     close(pb_data)
-  
-    message("Done")
+    
     invisible()
-  },
-  .mysql_create_table = function(df, db_name) {
+  }, 
+  .mysql_create_tbl_query = function(df, db_name) {
     "Auxiliary method for toMySQL that returns a string representation of a table
     creation query for an EpivizData object
     \\describe{
@@ -457,7 +498,7 @@ EpivizData$methods(
 
     create_table_query
   },
-  .mysql_insert_index = function(db_name, annotation=NULL) {
+  .mysql_insert_index_query = function(db_name, annotation=NULL) {
     "Auxiliary function for toMySQL that returns a string represention of
     an insert query for an EpivizData object
     \\describe{

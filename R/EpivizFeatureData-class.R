@@ -164,7 +164,7 @@ EpivizFeatureData$methods(
         if (is.null(ms@annotation)) {
           annotation <- "NULL"
         } else {
-          annotation <- ms@annotation
+          annotation <- epivizrServer::json_writer(ms@annotation)
         }
         paste0(
           "'", .self$get_id(), "'", ",", # measurement_id
