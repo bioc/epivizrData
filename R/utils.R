@@ -83,7 +83,13 @@ ahToMySQL <-  function (ah, annotations=list(), ...) {
   for (id in ah_ids) {
     record <- ah[id]
     
-    data_obj <- record[[id]]
+    tryCatch({
+      data_obj <- record[[id]]
+    }, error=function(e) {
+      message(e)
+      next
+    })
+
     try({
       # try to convert to GRanges if type is supported
       data_obj <- rtracklayer::import(data_obj)
