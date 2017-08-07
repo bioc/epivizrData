@@ -354,9 +354,9 @@ EpivizData$methods(
     # 'chr' at the beginning and concat 'chr' if missing
     
     df <- as.data.frame(.self, stringsAsFactors=FALSE)
-    
     # sanitize to avoid SQL errors
     colnames(df) <- gsub("\\.", "_", colnames(df))
+    colnames(df) <- tolower(colnames(df))
     
     # wrap character columns in single quotes for SQL query
     filter <- sapply(colnames(df), function(colname) is.character(df[,colname]))
@@ -492,7 +492,7 @@ EpivizData$methods(
         "PARTITION BY LIST COLUMNS(chr) ",
         "SUBPARTITION BY HASH (start) ",
         "SUBPARTITIONS 10 ",
-        "(", paste0("PARTITION `", chrs, "` VALUES IN('", chrs, "') ENGINE = MyISAM",
+        "(", paste0("PARTITION `", chrs, "` VALUES IN(", chrs, ") ENGINE = MyISAM",
           collapse=", "), ")"))
     }
 

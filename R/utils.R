@@ -32,7 +32,7 @@ setMethod ("as.data.frame", signature("EpivizData"),
 #' record is concatenated to its inferred annotation. If the annotation has
 #' a subtype column, it is used to name the data object being added to the db, 
 #' otherwise the record's tags is used. 
-#' @param ... arguments for toMySQL (connection, db_name, batch)
+#' @param ... arguments for toMySQL (connection, db_name, batch, index)
 #' @examples
 #' library(epivizrData)
 #' library(AnnotationHub)
@@ -102,7 +102,7 @@ ahToMySQL <-  function (ah, annotations=list(), ...) {
     name <- NULL
     
     if (!is.null(anno)) name <- anno$subtype
-    if (!is.null(name)) name <- record$tags
+    if (is.null(name)) name <- record$tags
     
     ms_obj$set_name(name)
 
@@ -124,5 +124,5 @@ ahToMySQL <-  function (ah, annotations=list(), ...) {
   annotation <- lapply(annotation,
     function(anno) gsub("\'", '\\"', anno))
   
-  epivizrServer::json_writer(annotation)
+  annotation
 }
