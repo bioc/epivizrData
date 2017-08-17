@@ -168,7 +168,7 @@ EpivizFeatureData$methods(
         }
         paste0(
           "'", .self$get_id(), "'", ",", # measurement_id
-          "'", .self$get_name(), "'", ",", # measurement_name
+          "'", ms@id, "'", ",", # measurement_name
           "'", .self$get_id(), "'", ",", # location
           "'", ms@id, "'", ",", # column_name
           ms@minValue, ",", # min
