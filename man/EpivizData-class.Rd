@@ -37,6 +37,15 @@ Data container for epiviz data server
 
 \item{\code{set_source_name(source_name)}}{Set original datasource name, used by manager \code{\link{EpivizDataMgr-class}}}
 
+\item{\code{toMySQL(connection, db_name, annotation = NULL, batch = 50, index = TRUE)}}{Send EpivizData to a MySQL Database
+\describe{
+\item{connection}{DBIConnection to a database}
+\item{db_name}{Name of MySQL database}
+\item{annotation}{Annotation for index table}
+\item{batch}{Batch size for data sent to the MySQL database}
+\item{index}{Insert into respective index table}
+}}
+
 \item{\code{update(new_object, send_request = TRUE)}}{Update underlying data object with new object}
 }}
 
