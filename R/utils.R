@@ -23,7 +23,7 @@ setMethod ("as.data.frame", signature("EpivizData"),
 )
 
 #' Utility function to import data to a MySQL database from Annotation Hub
-#' @param ah \code{\link{AnnotationHub}} object with records to add to
+#' @param ah \code{\link[AnnotationHub]{AnnotationHub}} object with records to add to
 #'  database.
 #' @param annotations A named list of lists (key/value pairs). Keys must 
 #' be the AH ID for the corresponding record and the value is a named list
@@ -46,22 +46,22 @@ setMethod ("as.data.frame", signature("EpivizData"),
 #' roadmap <- "EpigenomeRoadMap"
 #' bisulphite <- "bisulphite"
 #' 
-#' esophagus <- query(ah, c("esophagus", roadmap, bisulphite))
+#' esophagus <- query(ah, c("esophagus", "roadmap", "bisulphite"))
 #' eso_anno <- list(tissue="Digestive", subtype="Esophagus")
 #' eso_id <- names(esophagus)
 #' db_annotations[[eso_id]] <- eso_anno
 #' 
-#' gastric <- query(ah, c("gastric", roadmap, bisulphite))
+#' gastric <- query(ah, c("gastric", "roadmap", "bisulphite"))
 #' gas_anno <- list(tissue="Digestive", subtype="Gastric")
 #' gas_id <- names(gastric)
 #' db_annotations[[gas_id]] <- gas_anno
 #' 
-#' sigmoid_colon <- query(ah, c("sigmoid colon", roadmap, bisulphite))
+#' sigmoid_colon <- query(ah, c("sigmoid colon", "roadmap", "bisulphite"))
 #' colon_anno <- list(tissue="Digestive", subtype="Sigmoid Colon")
 #' colon_id <- names(sigmoid_colon)
 #' db_annotations[[colon_id]] <- colon_anno
 #' 
-#' small_intestine <- query(ah, c("small intestine", roadmap, bisulphite))
+#' small_intestine <- query(ah, c("small intestine", "roadmap", "bisulphite"))
 #' intestine_anno <- list(tissue="Digestive", subtype="Small Intestine")
 #' intestine_id <- names(small_intestine)
 #' db_annotations[[intestine_id]] <- intestine_anno
@@ -69,11 +69,11 @@ setMethod ("as.data.frame", signature("EpivizData"),
 #' # This collapses our 4 records into one AnnotationHub object.
 #' records <- c(esophagus, gastric, sigmoid_colon,  small_intestine)
 #' 
-#' connection <- dbConnect(MySQL(), host=host, user=user, password=pass)
-#' db_name="my_database"
+#' # connection <- dbConnect(MySQL(), host=host, user=user, password=pass)
+#' # db_name="my_database"
 #' 
-#' ahToMySQL(ah=records, annotations=db_annotations,
-#'  connection=connection, db_name=db_name)
+#' # ahToMySQL(ah=records, annotations=db_annotations,
+#' #   connection=connection, db_name=db_name)
 #'
 #' @export
 ahToMySQL <-  function (ah, annotations=list(), ...) {
@@ -120,7 +120,8 @@ ahToMySQL <-  function (ah, annotations=list(), ...) {
 }
 
 .make_db_annotation <- function(record, id, annotations) {
-  rec_metadata <- as.list(AnnotationHub:::.resource_table(record))
+  
+  rec_metadata <- as.list(mcols(record))
   annotation <- c(rec_metadata, annotations[[id]])
   
   # tidy for json format
