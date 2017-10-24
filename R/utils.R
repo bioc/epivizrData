@@ -78,7 +78,7 @@ setMethod ("as.data.frame", signature("EpivizData"),
 #' @export
 ahToMySQL <-  function (ah, annotations=list(), ...) {
   stopifnot(is(ah, "AnnotationHub"))
-
+  
   ah_ids <- names(ah)
   for (id in ah_ids) {
     record <- ah[id]
@@ -89,21 +89,35 @@ ahToMySQL <-  function (ah, annotations=list(), ...) {
       message(e)
       next
     })
-
+    
     try({
       # try to convert to GRanges if type is supported
       data_obj <- rtracklayer::import(data_obj)
     }, silent=TRUE)
     
     tryCatch({
-      ms_obj <- epivizrData::register(data_obj)
+      if(is(data_obj, "GRanges")) {
+        cols <- ncol(mcols(data_obj))
+        
+        # Check for type
+        # TODO: Include type for genes track
+        if (cols > 0) {
+          type = "bp"
+        } else {
+          type = "block"
+        }
+        
+        ms_obj <- epivizrData::register(data_obj, type=type) 
+      } else {
+        ms_obj <- epivizrData::register(data_obj)
+      }
     }, error=function(e) {
       # if we made it here the object type is not yet supported
       stop(e)
     })
-
+    
     ms_obj$set_id(id)
-
+    
     anno <- annotations[[id]]
     name <- NULL
     
@@ -111,7 +125,7 @@ ahToMySQL <-  function (ah, annotations=list(), ...) {
     if (is.null(name)) name <- record$tags
     
     ms_obj$set_name(name)
-
+    
     db_annotation <- .make_db_annotation(record, id, annotations)
     ms_obj$toMySQL(annotation=db_annotation, ...)
   }
