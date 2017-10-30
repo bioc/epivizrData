@@ -34,6 +34,7 @@ setMethod ("as.data.frame", signature("EpivizData"),
 #' otherwise the record's tags is used. 
 #' @param ... arguments for toMySQL (connection, db_name, batch, index)
 #' @examples
+#' \dontrun{
 #' library(epivizrData)
 #' library(AnnotationHub)
 #' library(DBI)
@@ -51,34 +52,16 @@ setMethod ("as.data.frame", signature("EpivizData"),
 #' eso_id <- names(esophagus)
 #' db_annotations[[eso_id]] <- eso_anno
 #' 
-#' gastric <- query(ah, c("gastric", "roadmap", "bisulphite"))
-#' gas_anno <- list(tissue="Digestive", subtype="Gastric")
-#' gas_id <- names(gastric)
-#' db_annotations[[gas_id]] <- gas_anno
+#' connection <- dbConnect(MySQL(), host=host, user=user, password=pass)
+#' db_name="my_database"
 #' 
-#' sigmoid_colon <- query(ah, c("sigmoid colon", "roadmap", "bisulphite"))
-#' colon_anno <- list(tissue="Digestive", subtype="Sigmoid Colon")
-#' colon_id <- names(sigmoid_colon)
-#' db_annotations[[colon_id]] <- colon_anno
-#' 
-#' small_intestine <- query(ah, c("small intestine", "roadmap", "bisulphite"))
-#' intestine_anno <- list(tissue="Digestive", subtype="Small Intestine")
-#' intestine_id <- names(small_intestine)
-#' db_annotations[[intestine_id]] <- intestine_anno
-#' 
-#' # This collapses our 4 records into one AnnotationHub object.
-#' records <- c(esophagus, gastric, sigmoid_colon,  small_intestine)
-#' 
-#' # connection <- dbConnect(MySQL(), host=host, user=user, password=pass)
-#' # db_name="my_database"
-#' 
-#' # ahToMySQL(ah=records, annotations=db_annotations,
-#' #   connection=connection, db_name=db_name)
-#'
+#' ahToMySQL(ah=record, annotations=db_annotations,
+#'   connection=connection, db_name=db_name)
+#'}
 #' @export
 ahToMySQL <-  function (ah, annotations=list(), ...) {
   stopifnot(is(ah, "AnnotationHub"))
-
+  
   ah_ids <- names(ah)
   for (id in ah_ids) {
     record <- ah[id]
@@ -89,21 +72,35 @@ ahToMySQL <-  function (ah, annotations=list(), ...) {
       message(e)
       next
     })
-
+    
     try({
       # try to convert to GRanges if type is supported
       data_obj <- rtracklayer::import(data_obj)
     }, silent=TRUE)
     
     tryCatch({
-      ms_obj <- epivizrData::register(data_obj)
+      if(is(data_obj, "GRanges")) {
+        cols <- ncol(mcols(data_obj))
+        
+        # Check for type
+        # TODO: Include type for genes track
+        if (cols > 0) {
+          type = "bp"
+        } else {
+          type = "block"
+        }
+        
+        ms_obj <- epivizrData::register(data_obj, type=type) 
+      } else {
+        ms_obj <- epivizrData::register(data_obj)
+      }
     }, error=function(e) {
       # if we made it here the object type is not yet supported
       stop(e)
     })
-
+    
     ms_obj$set_id(id)
-
+    
     anno <- annotations[[id]]
     name <- NULL
     
@@ -111,7 +108,7 @@ ahToMySQL <-  function (ah, annotations=list(), ...) {
     if (is.null(name)) name <- record$tags
     
     ms_obj$set_name(name)
-
+    
     db_annotation <- .make_db_annotation(record, id, annotations)
     ms_obj$toMySQL(annotation=db_annotation, ...)
   }
