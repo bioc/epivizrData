@@ -22,7 +22,7 @@
 #' data_mgr$add_measurements(gr, "example_gr", type="bp", columns="score")
 #'
 setGeneric("register", signature=c("object"), 
-	function(object, columns=NULL, ...) standardGeneric("register"))
+           function(object, columns=NULL, ...) standardGeneric("register"))
 
 setGeneric("reorderIfNeeded", signature=c("object"),
            function(object, ...) standardGeneric("reorderIfNeeded"))
@@ -47,7 +47,7 @@ setMethod("reorderIfNeeded", "GenomicRanges",
               }
             }
             return(object)
-})
+          })
 
 setMethod("coerceIfNeeded", "GenomicRanges", 
           function(object, ...) {
@@ -73,7 +73,7 @@ setMethod("reorderIfNeeded", "RangedSummarizedExperiment",
               object <- object[order,]
             }
             object
-})
+          })
 
 setMethod("coerceIfNeeded", "RangedSummarizedExperiment",
           function(object, ...) {
@@ -87,99 +87,99 @@ setMethod("coerceIfNeeded", "RangedSummarizedExperiment",
 #' @import GenomicRanges
 #' @param type Which type of data object to register for a \code{\link{GenomicRanges}} object. \code{block}: only region data, \code{bp} base-pair resolution quantitative data (see \code{columns} argument), \code{geneInfo} information about gene location.
 setMethod("register", "GenomicRanges",
-	function(object, columns, type=c("block","bp","gene_info"), ...) {
-		type <- match.arg(type)
-    object <- reorderIfNeeded(object)
-    object <- coerceIfNeeded(object)
-    
-		dev <- switch(type,
-		  block = EpivizBlockData$new(object=object, ...),
-			bp = EpivizBpData$new(object=object, columns=columns, ...),
-      gene_info = EpivizGeneInfoData$new(object=object, ...)
-		)
-		return(dev)
-})
+          function(object, columns, type=c("block","bp","gene_info"), ...) {
+            type <- match.arg(type)
+            object <- reorderIfNeeded(object)
+            object <- coerceIfNeeded(object)
+            
+            dev <- switch(type,
+                          block = EpivizBlockData$new(object=object, ...),
+                          bp = EpivizBpData$new(object=object, columns=columns, ...),
+                          gene_info = EpivizGeneInfoData$new(object=object, ...)
+            )
+            return(dev)
+          })
 
 #' @describeIn register Register a \code{\link{RangedSummarizedExperiment}} object
 #' @import SummarizedExperiment
 #' @param assay Which assay in object to register
 #' @param metadata Additional metadata about features
 setMethod("register", "RangedSummarizedExperiment",
-	function(object, columns = NULL, assay = 1, metadata = NULL) {
-          object <- reorderIfNeeded(object)
-		      rowRanges(object) <- coerceIfNeeded(rowRanges(object))
-
-          mcol_names <- names(mcols(rowRanges(object)))
-          if (is.null(metadata) && !is.null(mcol_names)) {
-            metadata <- mcol_names
-          }
-          if (!is.null(metadata) && any(!metadata %in% mcol_names)) {
-            stop("invalid metadata")
-          }
-          EpivizFeatureData$new(object = object, 
-                                columns = columns, 
-                                assay = assay, 
-                                metadata = metadata)
-})
+          function(object, columns = NULL, assay = 1, metadata = NULL) {
+            object <- reorderIfNeeded(object)
+            rowRanges(object) <- coerceIfNeeded(rowRanges(object))
+            
+            mcol_names <- names(mcols(rowRanges(object)))
+            if (is.null(metadata) && !is.null(mcol_names)) {
+              metadata <- mcol_names
+            }
+            if (!is.null(metadata) && any(!metadata %in% mcol_names)) {
+              stop("invalid metadata")
+            }
+            EpivizFeatureData$new(object = object, 
+                                  columns = columns, 
+                                  assay = assay, 
+                                  metadata = metadata)
+          })
 
 #' @describeIn register Register an \code{\link{ExpressionSet}} object
 #' @param annotation Character string indicating platform annotation (only hgu133plus2 supported for now)
 setMethod("register", "ExpressionSet",
-	function(object, columns, annotation = NULL, assay="exprs") {
-		if (is.null(annotation) || missing(annotation))
-			annotation <- annotation(object)
-
-		if (annotation != 'hgu133plus2') {
-			stop("only 'hgu133plus2' affy chips supported for now")
-		}
-
-		# make GRanges object with appropriate info
-		probeids <- featureNames(object)
-		annoName <- paste0(annotation, ".db")
-
-		if (!require(annoName, character.only=TRUE)) {
-			stop("package '", annoName, "' is required")
-		}
-
-		res <- suppressWarnings(AnnotationDbi::select(get(annoName), keys=probeids, columns=c("SYMBOL", "CHR", "CHRLOC", "CHRLOCEND"), keytype="PROBEID"))
-		dups <- duplicated(res$PROBEID)
-		res <- res[!dups,]
-
-		drop <- is.na(res$CHR) | is.na(res$CHRLOC) | is.na(res$CHRLOCEND)
-		res <- res[!drop,]
-
-		gr <- GRanges(seqnames = paste0("chr",res$CHR),
-		  strand = ifelse(res$CHRLOC>0, "+","-"),
-			ranges = IRanges::IRanges(start=abs(res$CHRLOC), end=abs(res$CHRLOCEND)))
-
-		mcols(gr)[,"SYMBOL"] <- res$SYMBOL
-		mcols(gr)[,"PROBEID"] <- res$PROBEID
-
-    mat <- assayDataElement(object, assay)[!drop,]
-    if (missing(columns) || is.null(columns))
-        columns <- colnames(mat)
-
-		if (any(!(columns %in% colnames(mat))))
-		  stop("'columns' not found is 'assayDataElement(object, assay)'")
-
-    mat <- mat[,columns]
-		colnames(mat) <- columns
-
-    if (!all(columns %in% rownames(pData(object)))) {
-      pd <- data.frame(dummy=character(length(columns)))
-      rownames(pd) <- columns
-    } else {
-      pd <- pData(object)[columns,]
-    }
-		sumexp <- SummarizedExperiment(assays = SimpleList(mat),
-		  rowRanges = gr,
-			colData = DataFrame(pd))
-
-		register(sumexp, 
-		         columns = columns, 
-		         assay = 1,
-		         metadata = c("PROBEID","SYMBOL"))
-})
+          function(object, columns, annotation = NULL, assay="exprs") {
+            if (is.null(annotation) || missing(annotation))
+              annotation <- annotation(object)
+            
+            if (annotation != 'hgu133plus2') {
+              stop("only 'hgu133plus2' affy chips supported for now")
+            }
+            
+            # make GRanges object with appropriate info
+            probeids <- featureNames(object)
+            annoName <- paste0(annotation, ".db")
+            
+            if (!require(annoName, character.only=TRUE)) {
+              stop("package '", annoName, "' is required")
+            }
+            
+            res <- suppressWarnings(AnnotationDbi::select(get(annoName), keys=probeids, columns=c("SYMBOL", "CHR", "CHRLOC", "CHRLOCEND"), keytype="PROBEID"))
+            dups <- duplicated(res$PROBEID)
+            res <- res[!dups,]
+            
+            drop <- is.na(res$CHR) | is.na(res$CHRLOC) | is.na(res$CHRLOCEND)
+            res <- res[!drop,]
+            
+            gr <- GRanges(seqnames = paste0("chr",res$CHR),
+                          strand = ifelse(res$CHRLOC>0, "+","-"),
+                          ranges = IRanges::IRanges(start=abs(res$CHRLOC), end=abs(res$CHRLOCEND)))
+            
+            mcols(gr)[,"SYMBOL"] <- res$SYMBOL
+            mcols(gr)[,"PROBEID"] <- res$PROBEID
+            
+            mat <- assayDataElement(object, assay)[!drop,]
+            if (missing(columns) || is.null(columns))
+              columns <- colnames(mat)
+            
+            if (any(!(columns %in% colnames(mat))))
+              stop("'columns' not found is 'assayDataElement(object, assay)'")
+            
+            mat <- mat[,columns]
+            colnames(mat) <- columns
+            
+            if (!all(columns %in% rownames(pData(object)))) {
+              pd <- data.frame(dummy=character(length(columns)))
+              rownames(pd) <- columns
+            } else {
+              pd <- pData(object)[columns,]
+            }
+            sumexp <- SummarizedExperiment(assays = SimpleList(mat),
+                                           rowRanges = gr,
+                                           colData = DataFrame(pd))
+            
+            register(sumexp, 
+                     columns = columns, 
+                     assay = 1,
+                     metadata = c("PROBEID","SYMBOL"))
+          })
 
 # 
 # setMethod("register", "BigWigFile",
@@ -207,8 +207,8 @@ setMethod("register", "ExpressionSet",
 # })
 
 .register_txdb <- function(object,
-                            kind = c("gene", "tx"),
-                            keepSeqlevels=NULL, ...)
+                           kind = c("gene", "tx"),
+                           keepSeqlevels=NULL, ...)
 {
   message("creating gene annotation (it may take a bit)\n")
   kind <- match.arg(kind)
@@ -240,3 +240,21 @@ setMethod("register", "EnsDb", .register_txdb)
 #   register(gr, type="block", ...)
 # })
 
+setMethod("register", "data.frame",
+          function(object, columns, ...) {
+            if(!("chr" %in% colnames(object))) {
+              object$chr <- rep("dataframe", times=nrow(object))
+            }
+            if(!("start" %in% colnames(object))) {
+              object$start <- 1:nrow(object)
+            }
+            if(!("end" %in% colnames(object))) {
+              object$end <- object$start
+            }
+            rownames(object) <- c()
+            
+            gdf <- makeGRangesFromDataFrame(object, keep.extra.columns = TRUE)
+            register(gdf, 
+                     type = "bp",
+                     columns = columns, ...)
+          })
