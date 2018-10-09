@@ -70,7 +70,6 @@ ahToMySQL <-  function (ah, annotations=list(), ...) {
       data_obj <- record[[id]]
     }, error=function(e) {
       message(e)
-      next
     })
     
     try({

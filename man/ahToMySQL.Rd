@@ -24,6 +24,7 @@ otherwise the record's tags is used.}
 Utility function to import data to a MySQL database from Annotation Hub
 }
 \examples{
+\dontrun{
 library(epivizrData)
 library(AnnotationHub)
 library(DBI)
@@ -41,28 +42,10 @@ eso_anno <- list(tissue="Digestive", subtype="Esophagus")
 eso_id <- names(esophagus)
 db_annotations[[eso_id]] <- eso_anno
 
-gastric <- query(ah, c("gastric", "roadmap", "bisulphite"))
-gas_anno <- list(tissue="Digestive", subtype="Gastric")
-gas_id <- names(gastric)
-db_annotations[[gas_id]] <- gas_anno
+connection <- dbConnect(MySQL(), host=host, user=user, password=pass)
+db_name="my_database"
 
-sigmoid_colon <- query(ah, c("sigmoid colon", "roadmap", "bisulphite"))
-colon_anno <- list(tissue="Digestive", subtype="Sigmoid Colon")
-colon_id <- names(sigmoid_colon)
-db_annotations[[colon_id]] <- colon_anno
-
-small_intestine <- query(ah, c("small intestine", "roadmap", "bisulphite"))
-intestine_anno <- list(tissue="Digestive", subtype="Small Intestine")
-intestine_id <- names(small_intestine)
-db_annotations[[intestine_id]] <- intestine_anno
-
-# This collapses our 4 records into one AnnotationHub object.
-records <- c(esophagus, gastric, sigmoid_colon,  small_intestine)
-
-# connection <- dbConnect(MySQL(), host=host, user=user, password=pass)
-# db_name="my_database"
-
-# ahToMySQL(ah=records, annotations=db_annotations,
-#   connection=connection, db_name=db_name)
-
+ahToMySQL(ah=record, annotations=db_annotations,
+  connection=connection, db_name=db_name)
+}
 }

@@ -240,6 +240,7 @@ setMethod("register", "EnsDb", .register_txdb)
 #   register(gr, type="block", ...)
 # })
 
+#' @describeIn register Register an \code{\link{data.frame}}
 setMethod("register", "data.frame",
           function(object, columns, ...) {
             if(!("chr" %in% colnames(object))) {

@@ -26,7 +26,7 @@ Suggests: testthat, roxygen2, bumphunter, hgu133plus2.db, Mus.musculus,
         EnsDb.Mmusculus.v79, AnnotationHub, rtracklayer, utils, RMySQL, DBI
 License: MIT + file LICENSE
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 Collate: 'epivizrData-package.R' 'EpivizMeasurement-class.R' 'EpivizDataMgr-class.R' 'createMgr.R'
         'EpivizData-class.R' 'EpivizTrackData-class.R'
         'EpivizBlockData-class.R' 'EpivizBpData-class.R'

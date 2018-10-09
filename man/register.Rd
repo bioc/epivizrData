@@ -9,12 +9,13 @@
 \alias{register,OrganismDb-method}
 \alias{register,TxDb-method}
 \alias{register,EnsDb-method}
+\alias{register,data.frame-method}
 \title{Generic method to register data to the data server}
 \usage{
 register(object, columns = NULL, ...)
 
-\S4method{register}{GenomicRanges}(object, columns, type = c("block", "bp",
-  "gene_info"), ...)
+\S4method{register}{GenomicRanges}(object, columns, type = c("block",
+  "bp", "gene_info"), ...)
 
 \S4method{register}{RangedSummarizedExperiment}(object, columns = NULL,
   assay = 1, metadata = NULL)
@@ -30,6 +31,8 @@ register(object, columns = NULL, ...)
 
 \S4method{register}{EnsDb}(object, kind = c("gene", "tx"),
   keepSeqlevels = NULL, ...)
+
+\S4method{register}{data.frame}(object, columns = NULL, ...)
 }
 \arguments{
 \item{object}{The object to register to data server}
@@ -69,6 +72,8 @@ Generic method to register data to the data server
 \item \code{TxDb}: Register a \code{\link{TxDb}} object
 
 \item \code{EnsDb}: Register an \code{\link{EnsDb}} object
+
+\item \code{data.frame}: Register an \code{\link{data.frame}}
 }}
 
 \examples{
