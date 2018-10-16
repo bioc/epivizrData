@@ -443,6 +443,41 @@ EpivizData$methods(
     
     invisible()
   }, 
+  .db_batch_send_queries = function(df, db_name, batch, connection) {
+    message("Batching queries...")
+    
+    sql_cols <- paste0(colnames(df), collapse=", ")
+    
+    pb_batch <- utils::txtProgressBar(style=3)
+    
+    lapply(seq(1, nrow(df), batch),
+           function(index, step, datasource) {
+             # check if our step is outside the size of df
+             # TODO: This only occurs on the last index (move outside)
+             if ((nrow(df) - index) < step) {
+               step <- (nrow(df) - index)
+             }
+             
+             batch_list <- apply(df[index:(index+step),], 1,
+                                 function(row) paste0("(", paste0(row, collapse = ','), ")")
+             )
+             
+             batch_values <- paste0(batch_list, collapse=", ")
+             
+             res <- paste0("INSERT INTO ", db_name, ".`", datasource, "` ",
+                           "(", sql_cols, ") VALUES ", batch_values)
+             
+             result <- DBI::dbSendStatement(connection, res)
+             DBI::dbClearResult(result)
+             
+             utils::setTxtProgressBar(pb_batch, (index / nrow(df)))
+           }, step=(batch - 1), datasource=.self$get_id()
+    )
+    
+    close(pb_batch)
+    
+    invisible()
+  },
   .mysql_create_tbl_query = function(df, db_name) {
     "Auxiliary method for toMySQL that returns a string representation of a table
     creation query for an EpivizData object
