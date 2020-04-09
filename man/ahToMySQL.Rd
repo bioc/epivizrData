@@ -7,7 +7,7 @@
 ahToMySQL(ah, annotations = list(), ...)
 }
 \arguments{
-\item{ah}{\code{\link[AnnotationHub]{AnnotationHub}} object with records to add to
+\item{ah}{[AnnotationHub()] object with records to add to
 database.}
 
 \item{annotations}{A named list of lists (key/value pairs). Keys must 

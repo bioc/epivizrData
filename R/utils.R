@@ -23,7 +23,7 @@ setMethod ("as.data.frame", signature("EpivizData"),
 )
 
 #' Utility function to import data to a MySQL database from Annotation Hub
-#' @param ah \code{\link[AnnotationHub]{AnnotationHub}} object with records to add to
+#' @param ah [AnnotationHub()] object with records to add to
 #'  database.
 #' @param annotations A named list of lists (key/value pairs). Keys must 
 #' be the AH ID for the corresponding record and the value is a named list

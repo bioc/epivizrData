@@ -3,8 +3,9 @@
 \docType{package}
 \name{epivizrData}
 \alias{epivizrData}
-\alias{epivizrData-package}
 \title{epivizrData}
 \description{
-epivizrData
+Infrastructure package for the epivizr interactive visualization system in Bioconductor.
+It provides connections between Bioconductor infrastructure objects and the epivizr
+visualization framework.
 }
