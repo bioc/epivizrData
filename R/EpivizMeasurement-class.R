@@ -2,13 +2,11 @@
 #' 
 #' @exportClass EpivizMeasurement
 EpivizMeasurement <- setClass("EpivizMeasurement",
+  contains = "SparseEpivizMeasurement",
   slots = c(
-    id = "character",
     name = "character",
     type = "character",
-    datasourceId = "character",
     datasourceGroup = "character",
-    datasourceName = "character",
     defaultChartType = "character",
     dataprovider = "character",
     annotation = "ANY",
@@ -17,12 +15,9 @@ EpivizMeasurement <- setClass("EpivizMeasurement",
     metadata = "ANY"
   ),
   prototype = prototype(
-    id = character(),
     name = character(),
     type = character(),
-    datasourceId = character(),
     datasourceGroup = character(),
-    datasourceName = character(),
     defaultChartType = character(),
     dataprovider = character(),
     annotation = NULL,
@@ -57,6 +52,8 @@ setMethod("show", signature(object="EpivizMeasurement"),
   }
 )
 
+#' Create empty Epiviz Measurement
+#' @export
 .emptyEpivizMeasurement <- function() {
   EpivizMeasurement(id=character(),
                     name=character(),
@@ -72,37 +69,31 @@ setMethod("show", signature(object="EpivizMeasurement"),
                     metadata=list())
 }
 
-.appendEpivizMeasurement <- function(a, b) {
-  if (!is(a, "EpivizMeasurement") || !is(b, "EpivizMeasurement")) {
-    stop("a and b must be 'EpivizMeasurement' objects")
-  }
-  
-  nms <- slotNames("EpivizMeasurement")
-  for (nm in nms) {
-    cur_val <- slot(b, nm)
-    if (is.list(slot(a, nm))) {
-      cur_val <- list(cur_val)
-    }
-    if (!is.null(slot(b, nm))) {
-      slot(a, nm) <- c(slot(a, nm), cur_val)
-    } else {
-      slot(a, nm) <- c(slot(a, nm), list(NULL))
-    }
-  }
-  a
-}
+setMethod(".appendEpivizMeasurement", "EpivizMeasurement",
+          function(a, b) {
+            nms <- slotNames("SparseEpivizMeasurement")
+            for (nm in nms) {
+              cur_val <- slot(b, nm)
+              if (is.list(slot(a, nm))) {
+                cur_val <- list(cur_val)
+              }
+              if (!is.null(slot(b, nm))) {
+                slot(a, nm) <- c(slot(a, nm), cur_val)
+              } else {
+                slot(a, nm) <- c(slot(a, nm), list(NULL))
+              }
+            }
+            a
+          })
 
-.serializeEpivizMeasurement <- function(obj) {
-  if (!is(obj, "EpivizMeasurement")) {
-    stop("obj must be of class 'EpivizMeasurement'")
-  }
-  
-  if (length(obj@id) == 1) {
-    nms <- slotNames("EpivizMeasurement")
-    for (nm in nms) {
-        slot(obj, nm) <- list(slot(obj, nm))
-    }
-  }
-  
-  epivizrServer::json_writer(as.list(obj))
-}
+setMethod(".serializeEpivizMeasurement", "EpivizMeasurement",
+          function(x) {
+            if (length(x@id) == 1) {
+              nms <- slotNames("EpivizMeasurement")
+              for (nm in nms) {
+                slot(x, nm) <- list(slot(x, nm))
+              }
+            }
+            
+            epivizrServer::json_writer(as.list(x))
+          })

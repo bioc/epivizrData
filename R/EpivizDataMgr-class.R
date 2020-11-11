@@ -97,7 +97,8 @@ EpivizDataMgr$methods(
         cat("Measurement ", datasource_name, " added to application and connected\n")
       }
       request_data <- list(action="addMeasurements",
-                           measurements=epivizrServer::json_writer(lapply(measurements, as.list)))
+                           measurements=epivizrServer::json_writer(lapply(measurements, as.list)),
+                           datasource=ms_id)
       .self$.server$send_request(request_data, .callback)
     }
     ms_object
