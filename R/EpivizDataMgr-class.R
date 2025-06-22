@@ -2,7 +2,7 @@
 #'
 #' @import methods IRanges
 #' @importClassesFrom epivizrServer EpivizServer
-#' @importClassesFrom GenomeInfoDb Seqinfo
+#' @importClassesFrom Seqinfo Seqinfo
 #' @export 
 EpivizDataMgr <- setRefClass("EpivizDataMgr",
   fields = list(

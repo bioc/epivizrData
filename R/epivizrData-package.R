@@ -7,5 +7,6 @@
 #' @name epivizrData
 #' @docType package
 #' @import Biobase
+#' @import Seqinfo
 #' @import GenomeInfoDb
 NULL

@@ -54,21 +54,21 @@ Generic method to register data to the data server
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{GenomicRanges}: Register a \code{\link{GenomicRanges}} object
+\item \code{register(GenomicRanges)}: Register a \code{\link{GenomicRanges}} object
 
-\item \code{RangedSummarizedExperiment}: Register a \code{\link{RangedSummarizedExperiment}} object
+\item \code{register(RangedSummarizedExperiment)}: Register a \code{\link{RangedSummarizedExperiment}} object
 
-\item \code{ExpressionSet}: Register an \code{\link{ExpressionSet}} object
+\item \code{register(ExpressionSet)}: Register an \code{\link{ExpressionSet}} object
 
-\item \code{OrganismDb}: Register an \code{\link{OrganismDb}} object
+\item \code{register(OrganismDb)}: Register an \code{\link{OrganismDb}} object
 
-\item \code{TxDb}: Register a \code{\link{TxDb}} object
+\item \code{register(TxDb)}: Register a \code{\link{TxDb}} object
 
-\item \code{EnsDb}: Register an \code{\link{EnsDb}} object
+\item \code{register(EnsDb)}: Register an \code{\link{EnsDb}} object
 
-\item \code{data.frame}: Register an \code{\link{data.frame}}
+\item \code{register(data.frame)}: Register an \code{\link{data.frame}}
+
 }}
-
 \examples{
 library(GenomicRanges)
 # create an example GRanges object
