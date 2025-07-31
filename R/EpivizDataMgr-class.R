@@ -265,7 +265,7 @@ EpivizDataMgr$methods(
       stop("'seqinfo' must be of class 'Seqinfo'")
     }
     if (!is.null(keep_seqlevels)) {
-      seqinfo <- keepSeqlevels(seqinfo, keep_seqlevels)
+      seqlevels(seqinfo) <- keep_seqlevels
     }
     
     .self$.seqinfo <- seqinfo

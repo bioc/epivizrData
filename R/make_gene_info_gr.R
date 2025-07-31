@@ -1,11 +1,11 @@
 .cleanup_gene_info_gr <- function(gr, keepSeqlevels = NULL) {
-  if (any(tmp <- isTRUE(GenomeInfoDb::isCircular(seqinfo(gr))))) {
+  if (any(tmp <- isTRUE(Seqinfo::isCircular(seqinfo(gr))))) {
     keep <- names(tmp)[!tmp]
-    gr <- keepSeqlevels(gr, keep, pruning.mode="coarse")
+    seqlevels(gr, pruning.mode="coarse") <- keep
   }
   
   if (!is.null(keepSeqlevels)) {
-    gr <- keepSeqlevels(gr, keepSeqlevels, pruning.mode="coarse")
+    seqlevels(gr, pruning.mode="coarse") <- keepSeqlevels
   }
   
   gr

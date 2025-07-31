@@ -1,7 +1,7 @@
 Package: epivizrData
 Type: Package
 Title: Data Management API for epiviz interactive visualization app
-Version: 1.37.1
+Version: 1.37.2
 Authors@R: c( person("Hector", "Corrada Bravo", 
                       email = "hcorrada@gmail.com", 
                       role = c("aut", "cre")), 
@@ -21,7 +21,7 @@ biocViews: Infrastructure, Visualization
 Depends: R (>= 3.4), methods, epivizrServer (>= 1.1.1), Biobase
 Imports: S4Vectors, GenomicRanges (>= 1.61.1), SummarizedExperiment (>= 1.39.1),
         OrganismDbi, GenomicFeatures (>= 1.61.4), Seqinfo,
-        GenomeInfoDb (>= 1.45.5), IRanges, ensembldb (>= 2.33.1)
+        IRanges, ensembldb (>= 2.33.1)
 Suggests: testthat, roxygen2, bumphunter, hgu133plus2.db, Mus.musculus,
         TxDb.Mmusculus.UCSC.mm10.knownGene, rjson, knitr, rmarkdown, BiocStyle,
         EnsDb.Mmusculus.v79, AnnotationHub, rtracklayer, utils, RMySQL, DBI,

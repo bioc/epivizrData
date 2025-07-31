@@ -30,12 +30,12 @@ test_that("add_seqinfo works", {
   wait_until(mgr$.server$is_socket_connected())
   
   seqinfo <- seqinfo(Mus.musculus)
-  seqlevels <- paste0("chr", c(1:19,"X","Y", "M"))
+  seqlevels_to_keep <- paste0("chr", c(1:19,"X","Y", "M"))
   
-  mgr$add_seqinfo(seqinfo, keep_seqlevels = seqlevels)
+  mgr$add_seqinfo(seqinfo, keep_seqlevels = seqlevels_to_keep)
   wait_until(!mgr$.server$has_request_waiting())
   
-  seqinfo <- keepSeqlevels(seqinfo, seqlevels)
+  seqlevels(seqinfo) <- seqlevels_to_keep
   
   outputEl <- remDr$findElement(using="id", "add_seqinfo_output")
   res <- outputEl$getElementText()[[1]]
@@ -75,9 +75,9 @@ test_that("rm_seqinfo works",{
   wait_until(mgr$.server$is_socket_connected())
 
   seqinfo <- seqinfo(Mus.musculus)
-  seqlevels <- paste0("chr", c(1:19,"X","Y", "M"))
+  seqlevels_to_keep <- paste0("chr", c(1:19,"X","Y", "M"))
   
-  mgr$add_seqinfo(seqinfo, keep_seqlevels = seqlevels)
+  mgr$add_seqinfo(seqinfo, keep_seqlevels = seqlevels_to_keep)
   wait_until(!mgr$.server$has_request_waiting())
 
   mgr$rm_seqinfo()
@@ -119,9 +119,9 @@ test_that("get_seqinfo works", {
   wait_until(mgr$.server$is_socket_connected())
   
   seqinfo <- seqinfo(Mus.musculus)
-  seqlevels <- paste0("chr", c(1:19,"X","Y", "M"))
+  seqlevels_to_keep <- paste0("chr", c(1:19,"X","Y", "M"))
   
-  mgr$add_seqinfo(seqinfo, keep_seqlevels = seqlevels)
+  mgr$add_seqinfo(seqinfo, keep_seqlevels = seqlevels_to_keep)
   wait_until(!mgr$.server$has_request_waiting())
   
   server$register_action("getSeqInfos", function(request_data) {
